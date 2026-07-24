@@ -189,12 +189,6 @@ table.dataTable{font-size:.875rem;}
 <div id="loadingOverlay"><div class="spinner-border text-primary" style="width:3rem;height:3rem;"></div></div>
 <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
 
-<div id="publicInvoiceScreen" style="display:none;min-height:100vh;background:var(--bs-tertiary-bg,#f3f4f6);padding:1.5rem .75rem;">
-  <div style="max-width:210mm;margin:0 auto;">
-    <div class="card p-3 p-md-4" id="publicInvoiceContent"></div>
-  </div>
-</div>
-
 <div id="loginScreen">
   <div class="login-card text-center">
     <div class="mb-3 d-inline-flex align-items-center justify-content-center login-icon-box">
@@ -485,6 +479,15 @@ table.dataTable{font-size:.875rem;}
           </table>
           <input type="hidden" name="ewallet_json" id="inpEwalletJson">
         </div>
+        <div class="card p-3 mb-3" id="cardMasterSatuan">
+          <h6 class="fw-bold mb-0 d-flex justify-content-between align-items-center">Master Satuan <button type="button" class="btn btn-sm btn-outline-primary" onclick="addSatuanRow()"><i class="bi bi-plus"></i> Tambah Satuan</button></h6>
+          <div class="small text-muted mt-1">Kelola daftar satuan yang tersedia pada dropdown item Invoice &amp; Penawaran.</div>
+          <table class="table table-sm mt-2" id="tblSatuan">
+            <thead><tr><th>Nama Satuan</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <input type="hidden" name="satuan_json" id="inpSatuanJson">
+        </div>
         <div class="card p-3 mb-3">
           <h6 class="fw-bold mb-3">Domain & Tautan Publik</h6>
           <div class="row g-2">
@@ -688,7 +691,7 @@ table.dataTable{font-size:.875rem;}
         <button type="button" class="btn btn-sm btn-outline-primary" onclick="addItemRow('penawaran')"><i class="bi bi-plus"></i> Tambah Item</button>
       </div>
       <table class="table table-sm" id="tblItemPenawaran">
-        <thead><tr><th>Layanan</th><th style="width:80px">Qty</th><th style="width:130px">Harga</th><th style="width:130px">Subtotal</th><th></th></tr></thead>
+        <thead><tr><th>Layanan</th><th style="width:80px">Qty</th><th style="width:110px">Satuan</th><th style="width:130px">Harga</th><th style="width:130px">Subtotal</th><th></th></tr></thead>
         <tbody></tbody>
       </table>
       <div class="text-end">
@@ -718,7 +721,7 @@ table.dataTable{font-size:.875rem;}
         <button type="button" class="btn btn-sm btn-outline-primary" onclick="addItemRow('invoice')"><i class="bi bi-plus"></i> Tambah Item</button>
       </div>
       <table class="table table-sm" id="tblItemInvoice">
-        <thead><tr><th>Layanan</th><th style="width:80px">Qty</th><th style="width:130px">Harga</th><th style="width:130px">Subtotal</th><th></th></tr></thead>
+        <thead><tr><th>Layanan</th><th style="width:80px">Qty</th><th style="width:110px">Satuan</th><th style="width:130px">Harga</th><th style="width:130px">Subtotal</th><th></th></tr></thead>
         <tbody></tbody>
       </table>
       <div class="row g-2 mb-2">
@@ -1232,7 +1235,7 @@ function serviceOptions(selected){
   return '<option value="">-- Pilih Layanan --</option>' +
     '<option value="__custom__" '+(selected==='__custom__'?'selected':'')+'>+ Custom / Ketik Manual</option>' +
     SERVICES.map(s=>
-    `<option value="${s.ID}" data-harga="${s.Harga}" ${selected===s.ID?'selected':''}>${s.NamaLayanan}</option>`).join('');
+    `<option value="${s.ID}" data-harga="${s.Harga}" data-satuan="${s.Satuan||''}" ${selected===s.ID?'selected':''}>${s.NamaLayanan}</option>`).join('');
 }
 
 function addItemRow(type, item){
@@ -1248,6 +1251,7 @@ function addItemRow(type, item){
         value="${isCustom?item.Deskripsi:''}" style="display:${isCustom?'block':'none'}">
     </td>
     <td><input type="number" class="form-control form-control-sm item-qty" value="${item?item.Qty:1}" min="1"></td>
+    <td><select class="form-select form-select-sm item-satuan">${satuanOptions(item?item.Satuan:'')}</select></td>
     <td><input type="number" class="form-control form-control-sm item-harga" value="${item?item.Harga:0}"></td>
     <td><span class="item-subtotal">0</span></td>
     <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove(); recalcTotals('${type}')"><i class="bi bi-x"></i></button></td>
@@ -1266,6 +1270,11 @@ function addItemRow(type, item){
       inpCustom.style.display = 'none';
       inpCustom.value = '';
       tr.querySelector('.item-harga').value = opt.dataset.harga || 0;
+      const satuanSel = tr.querySelector('.item-satuan');
+      const satuanDefault = opt.dataset.satuan || '';
+      if(satuanDefault && [...satuanSel.options].some(o=>o.value===satuanDefault)){
+        satuanSel.value = satuanDefault;
+      }
     }
     recalcTotals(type);
   });
@@ -1323,6 +1332,7 @@ function collectItems(type){
       ServiceID: isCustom ? '' : sel.value,
       Deskripsi: isCustom ? (inpCustom.value || 'Item Custom') : (sel.selectedOptions[0] ? sel.selectedOptions[0].textContent : ''),
       Qty: Number(tr.querySelector('.item-qty').value)||0,
+      Satuan: tr.querySelector('.item-satuan').value || '',
       Harga: Number(tr.querySelector('.item-harga').value)||0
     });
   });
@@ -1554,9 +1564,12 @@ async function fetchInvoiceExtras(id){
   return PAYMENTS_CACHE;
 }
 
-function renderInvoiceTemplateHtml(inv, s, a, payments, link){
+async function buildInvoiceHtml(id){
+  const data = await api('invoices','pdfdata',{id});
+  const inv = data.invoice, s = data.settings, a = data.assets;
+  const payments = (await fetchInvoiceExtras(id)).filter(p=>p.NomorInvoice===inv.Nomor);
   const itemsRows = inv.items.map(it=>`
-    <tr><td>${it.Deskripsi}</td><td class="text-end">${it.Qty}</td><td class="text-end">${formatCurrency(it.Harga)}</td><td class="text-end">${formatCurrency(it.Subtotal)}</td></tr>
+    <tr><td>${it.Deskripsi}</td><td class="text-end">${it.Qty}</td><td class="text-end">${it.Satuan||'-'}</td><td class="text-end">${formatCurrency(it.Harga)}</td><td class="text-end">${formatCurrency(it.Subtotal)}</td></tr>
   `).join('');
   const paymentsRows = payments.length ? payments.map(p=>`
     <tr><td>${formatDate(p.Tanggal)}</td><td>${formatCurrency(p.Jumlah)}</td><td>${p.Metode||'-'}</td><td>${p.Referensi||'-'}</td></tr>
@@ -1568,11 +1581,12 @@ function renderInvoiceTemplateHtml(inv, s, a, payments, link){
   timelineEvents.push({t:inv.Tanggal, label:'Status saat ini: '+(inv.Status||'-')});
   timelineEvents.sort((x,y)=> new Date(x.t) - new Date(y.t));
   const timelineRows = timelineEvents.map(ev=>`<li><span class="tl-time">${formatDate(ev.t)}</span>${ev.label}</li>`).join('');
+  const link = invoicePublicLink(inv);
   const bankRows = parseJsonSafe(s.rekening_bank_json, null) || ((s.bank_nama||s.bank_nomor) ? [{nama:s.bank_nama, nomor:s.bank_nomor, atas_nama:s.bank_atas_nama}] : []);
   const ewalletRows = parseJsonSafe(s.ewallet_json, null) || ((s.ewallet_provider||s.ewallet_nomor) ? [{provider:s.ewallet_provider, nomor:s.ewallet_nomor, atas_nama:s.ewallet_atas_nama}] : []);
   const bankListHtml = bankRows.length ? `<div><b>Rekening Bank:</b>${bankRows.map(b=>`<div class="mt-1">${b.nama||''} ${b.nomor||''}${b.atas_nama?' a.n. '+b.atas_nama:''}</div>`).join('')}</div>` : '';
   const ewalletListHtml = ewalletRows.length ? `<div class="mt-2"><b>E-Wallet:</b>${ewalletRows.map(w=>`<div class="mt-1">${w.provider||''} ${w.nomor||''}${w.atas_nama?' a.n. '+w.atas_nama:''}</div>`).join('')}</div>` : '';
-  return `
+  const html = `
     <div class="d-flex justify-content-between align-items-start mb-4">
       <div>
         ${a.logo_file_id ? `<img src="${a.logo_file_id}" style="height:60px;">` : `<h4>${s.nama_perusahaan}</h4>`}
@@ -1587,7 +1601,7 @@ function renderInvoiceTemplateHtml(inv, s, a, payments, link){
       </div>
     </div>
     <div class="mb-3"><b>Ditagihkan kepada:</b><br>${inv.client?inv.client.Nama:''} ${inv.client&&inv.client.Perusahaan?'('+inv.client.Perusahaan+')':''}<br>${inv.client?inv.client.Alamat||'':''}</div>
-    <table class="table table-bordered"><thead><tr><th>Deskripsi</th><th class="text-end">Qty</th><th class="text-end">Harga</th><th class="text-end">Subtotal</th></tr></thead>
+    <table class="table table-bordered"><thead><tr><th>Deskripsi</th><th class="text-end">Qty</th><th class="text-end">Satuan</th><th class="text-end">Harga</th><th class="text-end">Subtotal</th></tr></thead>
     <tbody>${itemsRows}</tbody></table>
     <div class="text-end mb-4">
       <div>Subtotal: ${formatCurrency(inv.Subtotal)}</div>
@@ -1627,68 +1641,7 @@ function renderInvoiceTemplateHtml(inv, s, a, payments, link){
       <div class="small text-muted mt-1">Pindai untuk melihat invoice ini secara online</div>
     </div>
   `;
-}
-
-async function buildInvoiceHtml(id){
-  const data = await api('invoices','pdfdata',{id});
-  const inv = data.invoice, s = data.settings, a = data.assets;
-  const payments = (await fetchInvoiceExtras(id)).filter(p=>p.NomorInvoice===inv.Nomor);
-  const link = invoicePublicLink(inv);
-  const html = renderInvoiceTemplateHtml(inv, s, a, payments, link);
   return {html, inv, settings:s, assets:a, link};
-}
-
-/* ================= PUBLIC INVOICE (baca saja, tanpa login) ================= */
-function getUrlPublicInvoiceNomor(){
-  try{
-    const params = new URLSearchParams(window.location.search);
-    return params.get('invoice');
-  }catch(e){ return null; }
-}
-
-async function fetchPublicInvoiceData(nomor){
-  let apiBase = getApiUrl();
-  if(!apiBase) throw new Error('URL API belum dikonfigurasi');
-  apiBase = apiBase.replace(/\/$/, '');
-  const url = apiBase + (apiBase.indexOf('?') > -1 ? '&' : '?') + 'invoice=' + encodeURIComponent(nomor);
-  const res = await fetch(url, { method:'GET' });
-  const json = await res.json();
-  if(!json.success) throw new Error(json.message || 'Invoice tidak ditemukan');
-  return json.data;
-}
-
-async function renderPublicInvoicePage(nomor){
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('sidebar').style.display = 'none';
-  document.getElementById('sidebarBackdrop').style.display = 'none';
-  document.querySelector('.main-wrap').style.display = 'none';
-  const screen = document.getElementById('publicInvoiceScreen');
-  const box = document.getElementById('publicInvoiceContent');
-  screen.style.display = 'block';
-  box.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" style="width:2.5rem;height:2.5rem;"></div><div class="mt-3 text-muted">Memuat invoice...</div></div>';
-  try{
-    const payload = await fetchPublicInvoiceData(nomor);
-    SETTINGS = payload.settings || {};
-    document.title = 'Invoice ' + payload.invoice.Nomor + ' - ' + (SETTINGS.nama_perusahaan || 'BARSOLUTION');
-    document.documentElement.setAttribute('data-bs-theme', 'light');
-    document.documentElement.style.setProperty('--bs-primary', SETTINGS.warna_utama || '#6366f1');
-    const html = renderInvoiceTemplateHtml(payload.invoice, payload.settings, payload.assets, payload.payments || [], payload.link);
-    box.innerHTML = `
-      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <div class="fw-bold fs-5">${SETTINGS.nama_perusahaan || 'BARSOLUTION'} <span class="badge bg-secondary fw-normal">Invoice Publik</span></div>
-        <button class="btn btn-sm btn-dark rounded-3" onclick="window.print()"><i class="bi bi-printer"></i> Cetak</button>
-      </div>
-      <div id="invoicePrintArea">${html}</div>
-    `;
-    renderQr('qr-'+payload.invoice.ID, payload.link);
-  }catch(err){
-    box.innerHTML = `
-      <div class="text-center py-5">
-        <i class="bi bi-file-earmark-x display-1 text-danger"></i>
-        <h4 class="fw-bold mt-3">Invoice Tidak Ditemukan</h4>
-        <p class="text-muted mb-0">Nomor invoice "${nomor}" tidak ditemukan atau sudah tidak tersedia.</p>
-      </div>`;
-  }
 }
 
 async function viewInvoicePdf(id){
@@ -1892,7 +1845,7 @@ async function loadSettingsForm(){
   Object.keys(SETTINGS).forEach(k=>{ if(form[k]) form[k].value = SETTINGS[k]; });
   loadAssetPreview('logo'); loadAssetPreview('favicon'); loadAssetPreview('ttd'); loadAssetPreview('stempel'); loadAssetPreview('qris'); loadAssetPreview('logo_login'); loadAssetPreview('login_bg');
   applyLoginBranding(); applyLoginTheme();
-  loadBankRows(); loadEwalletRows();
+  loadBankRows(); loadEwalletRows(); loadSatuanRows();
 }
 
 function parseJsonSafe(str, fallback){
@@ -1978,6 +1931,50 @@ function collectEwalletRows(){
   return rows;
 }
 
+/* ================= MASTER SATUAN ================= */
+const DEFAULT_SATUAN_LIST = ['Pcs','Unit','Paket','Proyek','Bulan','Tahun','Hari','Jam','Orang','Meter','Lisensi'];
+
+function getSatuanList(){
+  const rows = parseJsonSafe(SETTINGS.satuan_json, null);
+  if(rows && rows.length) return rows;
+  return DEFAULT_SATUAN_LIST.slice();
+}
+
+function loadSatuanRows(){
+  const tbody = document.querySelector('#tblSatuan tbody');
+  tbody.innerHTML = '';
+  const rows = getSatuanList();
+  rows.forEach(r=>addSatuanRow(r));
+}
+
+function addSatuanRow(nama){
+  const tbody = document.querySelector('#tblSatuan tbody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input class="form-control form-control-sm satuan-nama" placeholder="Pcs, Unit, Paket, dll" value="${nama?String(nama).replace(/"/g,'&quot;'):''}"></td>
+    <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()"><i class="bi bi-x"></i></button></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+function collectSatuanRows(){
+  const rows = [];
+  document.querySelectorAll('#tblSatuan tbody tr').forEach(tr=>{
+    const nama = tr.querySelector('.satuan-nama').value.trim();
+    if(nama && !rows.includes(nama)) rows.push(nama);
+  });
+  return rows.length ? rows : DEFAULT_SATUAN_LIST.slice();
+}
+
+function satuanOptions(selected){
+  const list = getSatuanList();
+  let opts = list.map(s=>`<option value="${s}" ${selected===s?'selected':''}>${s}</option>`).join('');
+  if(selected && !list.includes(selected)){
+    opts += `<option value="${selected}" selected>${selected}</option>`;
+  }
+  return opts;
+}
+
 function setSidebarLogo(src){
   const img = document.getElementById('sidebarLogo');
   const icon = document.querySelector('#brandIconBox .bi');
@@ -2024,6 +2021,7 @@ document.getElementById('formSettings').addEventListener('submit', async e=>{
   e.preventDefault();
   document.getElementById('inpRekeningBankJson').value = JSON.stringify(collectBankRows());
   document.getElementById('inpEwalletJson').value = JSON.stringify(collectEwalletRows());
+  document.getElementById('inpSatuanJson').value = JSON.stringify(collectSatuanRows());
   const fd = new FormData(e.target);
   const data = Object.fromEntries(fd.entries());
   await api('settings','update',{data});
@@ -2041,11 +2039,6 @@ function applySettingsToUi(){
 
 /* ================= INIT ================= */
 (async function init(){
-  const publicInvoiceNomor = getUrlPublicInvoiceNomor();
-  if(publicInvoiceNomor){
-    await renderPublicInvoicePage(publicInvoiceNomor);
-    return;
-  }
   const savedTheme = localStorage.getItem('theme');
   if(savedTheme) document.documentElement.setAttribute('data-bs-theme', savedTheme);
   document.getElementById('inpLoginApiUrl').value = localStorage.getItem('api_url') || '';
