@@ -1127,8 +1127,8 @@ function buildPublicInvoiceHtml(data){
         ${a.qris_file_id ? `<div class="mt-2"><b>QRIS:</b><br><img src="${a.qris_file_id}" style="height:120px;"></div>` : ''}
       </div>
       <div class="col-6 text-end">
-        ${a.ttd_file_id ? `<img src="${a.ttd_file_id}" style="height:100px;max-width:200px;object-fit:contain;">` : ''}
-        ${a.stempel_file_id ? `<img src="${a.stempel_file_id}" style="height:50px;max-width:100px;object-fit:contain;margin-left:-10px;">` : ''}
+        ${a.stempel_file_id ? `<img src="${a.stempel_file_id}" style="height:65px;max-width:130px;object-fit:contain;position:relative;z-index:2;">` : ''}
+        ${a.ttd_file_id ? `<img src="${a.ttd_file_id}" style="height:100px;max-width:200px;object-fit:contain;margin-left:-18px;position:relative;z-index:1;">` : ''}
         <div class="mt-1">Hormat kami,<br>${s.nama_perusahaan||''}</div>
       </div>
     </div>
@@ -1755,8 +1755,8 @@ async function buildInvoiceHtml(id){
         ${a.qris_file_id ? `<div class="mt-2"><b>QRIS:</b><br><img src="${a.qris_file_id}" style="height:120px;"></div>` : ''}
       </div>
       <div class="col-6 text-end">
-        ${a.ttd_file_id ? `<img src="${a.ttd_file_id}" style="height:100px;max-width:200px;object-fit:contain;">` : ''}
-        ${a.stempel_file_id ? `<img src="${a.stempel_file_id}" style="height:50px;max-width:100px;object-fit:contain;margin-left:-10px;">` : ''}
+        ${a.stempel_file_id ? `<img src="${a.stempel_file_id}" style="height:65px;max-width:130px;object-fit:contain;position:relative;z-index:2;">` : ''}
+        ${a.ttd_file_id ? `<img src="${a.ttd_file_id}" style="height:100px;max-width:200px;object-fit:contain;margin-left:-18px;position:relative;z-index:1;">` : ''}
         <div class="mt-1">Hormat kami,<br>${s.nama_perusahaan}</div>
       </div>
     </div>
