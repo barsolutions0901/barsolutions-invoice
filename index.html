@@ -143,6 +143,10 @@ table.dataTable{font-size:.875rem;}
 .timeline-list .tl-time{color:var(--bs-secondary-color);font-size:.75rem;display:block;}
 .invoice-action-bar{display:flex;flex-wrap:wrap;gap:.4rem;}
 .share-link-box{display:flex;gap:.5rem;align-items:center;background:var(--bs-tertiary-bg);border-radius:8px;padding:.5rem .75rem;font-size:.8rem;word-break:break-all;}
+#loginScreen{position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;padding:1rem;background:linear-gradient(135deg,var(--primary-accent,#0d6efd) 0%,#111827 100%);}
+#loginScreen .login-card{width:100%;max-width:380px;background:var(--bs-body-bg);border-radius:18px;padding:2.5rem 2rem;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+#loginScreen .login-icon-box{width:64px;height:64px;border-radius:16px;background:var(--bs-primary);color:#fff;font-size:1.8rem;position:relative;}
+#loginScreen .login-icon-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:16px;}
 @media print{
   body *{visibility:hidden;}
   #invoicePrintArea,#invoicePrintArea *{visibility:visible;}
@@ -154,6 +158,76 @@ table.dataTable{font-size:.875rem;}
 
 <div id="loadingOverlay"><div class="spinner-border text-primary" style="width:3rem;height:3rem;"></div></div>
 <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+<div id="loginScreen">
+  <div class="login-card text-center">
+    <div class="mb-3 d-inline-flex align-items-center justify-content-center login-icon-box">
+      <i class="bi bi-receipt-cutoff"></i>
+      <img id="loginLogo" src="" style="display:none;">
+    </div>
+    <h5 class="fw-bold mb-1" id="loginBrandName">BARSOLUTION</h5>
+    <div class="text-muted small mb-4" id="loginTeksSambutan">Masuk untuk mengelola invoice Anda</div>
+    <form id="formLogin" class="text-start">
+      <div class="mb-3">
+        <label class="form-label small">Username / Email</label>
+        <input type="text" class="form-control" id="inpLoginUsername" required autocomplete="username">
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Kata Sandi</label>
+        <div class="input-group">
+          <input type="password" class="form-control" id="inpLoginPassword" required autocomplete="current-password">
+          <button type="button" class="btn btn-outline-secondary" id="btnTogglePassword"><i class="bi bi-eye"></i></button>
+        </div>
+      </div>
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="chkRememberMe" checked>
+        <label class="form-check-label small" for="chkRememberMe">Ingat saya</label>
+      </div>
+      <div id="loginErrorBox" class="alert alert-danger py-2 small d-none"></div>
+      <button type="submit" class="btn btn-primary w-100 rounded-3" id="btnLoginSubmit"><i class="bi bi-box-arrow-in-right"></i> Masuk</button>
+    </form>
+    <div class="text-center small mt-3">
+      <a href="#" id="linkKoneksiApi">Pengaturan Koneksi API</a>
+    </div>
+    <div id="loginApiUrlBox" class="mt-2 d-none">
+      <input type="url" class="form-control form-control-sm mb-2" id="inpLoginApiUrl" placeholder="https://script.google.com/macros/s/.../exec">
+      <button type="button" class="btn btn-sm btn-outline-primary w-100" id="btnSaveLoginApiUrl">Simpan URL API</button>
+    </div>
+    <div class="text-center small mt-2">
+      Belum punya akun? <a href="#" id="linkTampilkanDaftar">Buat Akun</a>
+    </div>
+  </div>
+  <div class="login-card text-center d-none" id="registerCard">
+    <div class="mb-3 d-inline-flex align-items-center justify-content-center login-icon-box">
+      <i class="bi bi-person-plus"></i>
+    </div>
+    <h5 class="fw-bold mb-1">Buat Akun Baru</h5>
+    <div class="text-muted small mb-4">Daftar untuk mendapatkan akses aplikasi</div>
+    <form id="formRegister" class="text-start">
+      <div class="mb-3">
+        <label class="form-label small">Nama Lengkap</label>
+        <input type="text" class="form-control" id="inpRegisterNama" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Username / Email</label>
+        <input type="text" class="form-control" id="inpRegisterUsername" required autocomplete="username">
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Kata Sandi</label>
+        <input type="password" class="form-control" id="inpRegisterPassword" required autocomplete="new-password">
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Konfirmasi Kata Sandi</label>
+        <input type="password" class="form-control" id="inpRegisterPasswordConfirm" required autocomplete="new-password">
+      </div>
+      <div id="registerErrorBox" class="alert alert-danger py-2 small d-none"></div>
+      <button type="submit" class="btn btn-primary w-100 rounded-3" id="btnRegisterSubmit"><i class="bi bi-person-plus"></i> Daftar</button>
+    </form>
+    <div class="text-center small mt-3">
+      Sudah punya akun? <a href="#" id="linkTampilkanLogin">Masuk</a>
+    </div>
+  </div>
+</div>
 
 <nav class="sidebar" id="sidebar">
   <div class="brand"><span class="brand-icon-box" id="brandIconBox"><i class="bi bi-receipt-cutoff"></i><img id="sidebarLogo" src="" style="display:none;"></span> <span id="brandName" class="text-truncate">BARSOLUTION</span></div>
@@ -167,6 +241,7 @@ table.dataTable{font-size:.875rem;}
     <a class="nav-link" href="#pembayaran" data-page="pembayaran"><i class="bi bi-credit-card-fill"></i> Pembayaran</a>
     <a class="nav-link" href="#laporan" data-page="laporan"><i class="bi bi-bar-chart-line-fill"></i> Laporan</a>
     <a class="nav-link" href="#pengaturan" data-page="pengaturan"><i class="bi bi-gear-fill"></i> Pengaturan</a>
+    <a class="nav-link d-none" href="#pengguna" data-page="pengguna" id="navPengguna"><i class="bi bi-person-badge-fill"></i> Manajemen Pengguna</a>
   </div>
 </nav>
 
@@ -181,6 +256,7 @@ table.dataTable{font-size:.875rem;}
     </div>
     <div class="d-flex align-items-center gap-2">
       <button class="btn btn-sm btn-light rounded-circle p-2" id="btnDarkMode" title="Ganti Tema Terang/Gelap"><i class="bi bi-moon-stars"></i></button>
+      <button class="btn btn-sm btn-light rounded-circle p-2" id="btnLogout" title="Keluar"><i class="bi bi-box-arrow-right"></i></button>
       <img id="topbarLogo" src="" style="height:36px;display:none;border-radius:6px;">
     </div>
   </div>
@@ -312,6 +388,22 @@ table.dataTable{font-size:.875rem;}
     </div>
   </div>
 
+  <!-- MANAJEMEN PENGGUNA -->
+  <div class="page" id="page-pengguna">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0">Manajemen Pengguna</h6>
+        <button class="btn btn-primary btn-sm rounded-3" onclick="openUserModal()"><i class="bi bi-plus-lg"></i> Tambah Pengguna</button>
+      </div>
+      <div class="table-responsive">
+      <table class="table table-hover align-middle w-100" id="tblPengguna">
+        <thead><tr><th>Nama</th><th>Username</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
   <!-- PENGATURAN -->
   <div class="page" id="page-pengaturan">
     <div class="row g-3 mb-1">
@@ -403,6 +495,33 @@ table.dataTable{font-size:.875rem;}
             </div>
           </div>
         </div>
+        <div class="card p-3 mb-3">
+          <h6 class="fw-bold mb-3">Halaman Login</h6>
+          <div class="row g-2">
+            <div class="col-md-4">
+              <label class="form-label small">Tema Login</label>
+              <select class="form-select" name="login_tema"><option value="ikuti_aplikasi">Ikuti Aplikasi</option><option value="light">Terang</option><option value="dark">Gelap</option></select>
+            </div>
+            <div class="col-md-4"><label class="form-label small">Warna Aksen Login</label><input class="form-control form-control-color" name="login_warna_aksen" type="color"></div>
+            <div class="col-md-4">
+              <label class="form-label small">Gaya Latar Belakang</label>
+              <select class="form-select" name="login_gaya_latar"><option value="gradasi">Gradasi</option><option value="polos">Polos</option><option value="gambar">Gambar</option></select>
+            </div>
+            <div class="col-md-4"><label class="form-label small">Warna Latar 1</label><input class="form-control form-control-color" name="login_warna_latar1" type="color"></div>
+            <div class="col-md-4"><label class="form-label small">Warna Latar 2</label><input class="form-control form-control-color" name="login_warna_latar2" type="color"></div>
+            <div class="col-md-4"><label class="form-label small">Teks Sambutan Login</label><input class="form-control" name="login_teks_sambutan" placeholder="Masuk untuk mengelola invoice Anda"></div>
+          </div>
+          <div class="mb-2 mt-2">
+            <label class="form-label small">Logo Halaman Login</label>
+            <div class="upload-box" onclick="document.getElementById('inpLogoLogin').click()"><img id="prevLogoLogin" style="display:none"><div id="txtLogoLogin"><i class="bi bi-cloud-upload fs-3"></i><div class="small">Klik untuk unggah logo login</div></div></div>
+            <input type="file" id="inpLogoLogin" class="d-none" accept="image/*" onchange="handleAssetUpload('logo_login',this)">
+          </div>
+          <div class="mb-2">
+            <label class="form-label small">Gambar Latar Login</label>
+            <div class="upload-box" onclick="document.getElementById('inpLoginBg').click()"><img id="prevLoginBg" style="display:none"><div id="txtLoginBg"><i class="bi bi-cloud-upload fs-3"></i><div class="small">Klik untuk unggah gambar latar</div></div></div>
+            <input type="file" id="inpLoginBg" class="d-none" accept="image/*" onchange="handleAssetUpload('login_bg',this)">
+          </div>
+        </div>
       </div>
       <div class="col-lg-4">
         <div class="card p-3 mb-3">
@@ -456,6 +575,40 @@ table.dataTable{font-size:.875rem;}
       <div class="mb-2"><label class="form-label small">Alamat</label><textarea class="form-control" name="Alamat" rows="2"></textarea></div>
       <div class="mb-2"><label class="form-label small">NPWP</label><input class="form-control" name="NPWP"></div>
       <div class="mb-2"><label class="form-label small">Catatan</label><textarea class="form-control" name="Catatan" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Batal</button><button class="btn btn-primary rounded-3" type="submit">Simpan</button></div>
+  </form>
+</div></div></div>
+
+<!-- MODAL PENGGUNA -->
+<div class="modal fade" id="modalPengguna" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+  <form id="formPengguna">
+    <div class="modal-header"><h5 class="modal-title">Form Pengguna</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <input type="hidden" name="ID">
+      <div class="mb-2"><label class="form-label small">Nama</label><input class="form-control" name="Nama" required></div>
+      <div class="mb-2"><label class="form-label small">Username</label><input class="form-control" name="Username" required autocomplete="off"></div>
+      <div class="mb-2">
+        <label class="form-label small">Kata Sandi</label>
+        <input class="form-control" name="Password" type="password" autocomplete="new-password">
+        <div class="form-text small" id="txtPasswordHint">Wajib diisi untuk pengguna baru. Kosongkan saat edit jika tidak ingin mengganti kata sandi.</div>
+      </div>
+      <div class="row">
+        <div class="col-6 mb-2">
+          <label class="form-label small">Role</label>
+          <select class="form-select" name="Role">
+            <option value="Staf">Staf</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </div>
+        <div class="col-6 mb-2">
+          <label class="form-label small">Status</label>
+          <select class="form-select" name="Status">
+            <option value="Aktif">Aktif</option>
+            <option value="Nonaktif">Nonaktif</option>
+          </select>
+        </div>
+      </div>
     </div>
     <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Batal</button><button class="btn btn-primary rounded-3" type="submit">Simpan</button></div>
   </form>
@@ -621,7 +774,7 @@ table.dataTable{font-size:.875rem;}
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 <script>
-const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwRn-9LkPNBSCFu_iur-fTS1rfQ2AYTqY6eEh6MEERTbv5YHCjqViRaqGq9RERvps6c/exec';
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbyzD0sGwDFfT0_skelAoeYFq8Or8e5H9kR-zNPLqZ19mRiwW5unsjfYSKQneBm7328b/exec';
 function getApiUrl(){ return localStorage.getItem('api_url') || DEFAULT_API_URL; }
 
 let SETTINGS = {};
@@ -685,11 +838,168 @@ function statusBadge(status){
   return `<span class="badge bg-${c} badge-status">${status||'-'}</span>`;
 }
 
+/* ================= AUTH ================= */
+function getAuthToken(){ return localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token'); }
+function isLoggedIn(){ return !!getAuthToken(); }
+
+function getCurrentUser(){
+  try{
+    const raw = localStorage.getItem('auth_user') || sessionStorage.getItem('auth_user');
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+function isAdmin(){
+  const u = getCurrentUser();
+  return !!(u && u.Role === 'Admin');
+}
+function applyRoleUI(){
+  document.getElementById('navPengguna').classList.toggle('d-none', !isAdmin());
+}
+
+function showLoginScreen(){
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('sidebar').style.display = 'none';
+  document.querySelector('.main-wrap').style.display = 'none';
+}
+
+function showApp(){
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('sidebar').style.display = '';
+  document.querySelector('.main-wrap').style.display = '';
+}
+
+async function applyLoginBranding(){
+  document.getElementById('loginBrandName').textContent = SETTINGS.nama_perusahaan || 'BARSOLUTION';
+  const teksSambutan = document.getElementById('loginTeksSambutan');
+  if(teksSambutan) teksSambutan.textContent = SETTINGS.login_teks_sambutan || 'Masuk untuk mengelola invoice Anda';
+  const fileId = SETTINGS.logo_login_file_id || SETTINGS.logo_file_id;
+  if(fileId){
+    try{
+      const f = await api('file','get',{fileId});
+      if(f){
+        document.getElementById('loginLogo').src = 'data:'+f.mimeType+';base64,'+f.base64;
+        document.getElementById('loginLogo').style.display = 'block';
+        document.querySelector('#loginScreen .login-icon-box .bi').style.display = 'none';
+      }
+    }catch(e){}
+  }
+}
+
+async function applyLoginTheme(){
+  const el = document.getElementById('loginScreen');
+  const loginTema = SETTINGS.login_tema || 'ikuti_aplikasi';
+  const tema = loginTema === 'ikuti_aplikasi' ? (SETTINGS.tema || 'light') : loginTema;
+  el.setAttribute('data-bs-theme', tema);
+  const aksen = SETTINGS.login_warna_aksen || SETTINGS.warna_utama || '#6366f1';
+  el.style.setProperty('--primary-accent', aksen);
+  el.style.setProperty('--bs-primary', aksen);
+  const gaya = SETTINGS.login_gaya_latar || 'gradasi';
+  const warna1 = SETTINGS.login_warna_latar1 || aksen;
+  const warna2 = SETTINGS.login_warna_latar2 || '#111827';
+  if(gaya === 'polos'){
+    el.style.background = warna1;
+  } else if(gaya === 'gambar' && SETTINGS.login_bg_file_id){
+    try{
+      const f = await api('file','get',{fileId: SETTINGS.login_bg_file_id});
+      if(f){ el.style.background = `linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)), url(data:${f.mimeType};base64,${f.base64}) center/cover no-repeat`; }
+    }catch(e){ el.style.background = `linear-gradient(135deg, ${warna1} 0%, ${warna2} 100%)`; }
+  } else {
+    el.style.background = `linear-gradient(135deg, ${warna1} 0%, ${warna2} 100%)`;
+  }
+}
+
+document.getElementById('btnTogglePassword').addEventListener('click', ()=>{
+  const inp = document.getElementById('inpLoginPassword');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+});
+
+document.getElementById('linkKoneksiApi').addEventListener('click', (e)=>{
+  e.preventDefault();
+  document.getElementById('loginApiUrlBox').classList.toggle('d-none');
+});
+
+document.getElementById('linkTampilkanDaftar').addEventListener('click', (e)=>{
+  e.preventDefault();
+  document.getElementById('loginScreen').querySelector('.login-card:not(#registerCard)').classList.add('d-none');
+  document.getElementById('registerCard').classList.remove('d-none');
+});
+
+document.getElementById('linkTampilkanLogin').addEventListener('click', (e)=>{
+  e.preventDefault();
+  document.getElementById('registerCard').classList.add('d-none');
+  document.getElementById('loginScreen').querySelector('.login-card:not(#registerCard)').classList.remove('d-none');
+});
+
+document.getElementById('formRegister').addEventListener('submit', async e=>{
+  e.preventDefault();
+  document.getElementById('registerErrorBox').classList.add('d-none');
+  const nama = document.getElementById('inpRegisterNama').value.trim();
+  const username = document.getElementById('inpRegisterUsername').value.trim();
+  const password = document.getElementById('inpRegisterPassword').value;
+  const confirm = document.getElementById('inpRegisterPasswordConfirm').value;
+  if(password !== confirm){
+    document.getElementById('registerErrorBox').textContent = 'Konfirmasi kata sandi tidak sama';
+    document.getElementById('registerErrorBox').classList.remove('d-none');
+    return;
+  }
+  try{
+    await api('auth','register',{data:{nama, username, password}});
+    toast('success','Akun berhasil dibuat, silakan masuk');
+    document.getElementById('formRegister').reset();
+    document.getElementById('linkTampilkanLogin').click();
+    document.getElementById('inpLoginUsername').value = username;
+  }catch(err){
+    document.getElementById('registerErrorBox').textContent = err.message || 'Gagal membuat akun';
+    document.getElementById('registerErrorBox').classList.remove('d-none');
+  }
+});
+
+document.getElementById('btnSaveLoginApiUrl').addEventListener('click', ()=>{
+  const val = document.getElementById('inpLoginApiUrl').value.trim();
+  if(val) localStorage.setItem('api_url', val); else localStorage.removeItem('api_url');
+  toast('success','URL API Apps Script tersimpan');
+});
+
+document.getElementById('formLogin').addEventListener('submit', async e=>{
+  e.preventDefault();
+  document.getElementById('loginErrorBox').classList.add('d-none');
+  const username = document.getElementById('inpLoginUsername').value.trim();
+  const password = document.getElementById('inpLoginPassword').value;
+  const remember = document.getElementById('chkRememberMe').checked;
+  try{
+    const result = await api('auth','login',{data:{username, password}});
+    const token = (result && (result.token || result.sessionToken)) || 'ok';
+    const store = remember ? localStorage : sessionStorage;
+    store.setItem('auth_token', token);
+    if(result && result.user) store.setItem('auth_user', JSON.stringify(result.user));
+    toast('success','Berhasil masuk');
+    showApp();
+    applyRoleUI();
+    router();
+  }catch(err){
+    document.getElementById('loginErrorBox').textContent = 'Username atau kata sandi salah';
+    document.getElementById('loginErrorBox').classList.remove('d-none');
+  }
+});
+
+document.getElementById('btnLogout').addEventListener('click', ()=>{
+  Swal.fire({title:'Keluar dari aplikasi?', icon:'question', showCancelButton:true, confirmButtonText:'Keluar', cancelButtonText:'Batal'}).then(r=>{
+    if(r.isConfirmed){
+      localStorage.removeItem('auth_token'); localStorage.removeItem('auth_user');
+      sessionStorage.removeItem('auth_token'); sessionStorage.removeItem('auth_user');
+      document.getElementById('navPengguna').classList.add('d-none');
+      showLoginScreen();
+    }
+  });
+});
+
 /* ================= ROUTER ================= */
-const pageTitles = {dashboard:'Dashboard',klien:'Klien',layanan:'Layanan',penawaran:'Penawaran',invoice:'Invoice',pembayaran:'Pembayaran',laporan:'Laporan',pengaturan:'Pengaturan'};
+const pageTitles = {dashboard:'Dashboard',klien:'Klien',layanan:'Layanan',penawaran:'Penawaran',invoice:'Invoice',pembayaran:'Pembayaran',laporan:'Laporan',pengaturan:'Pengaturan',pengguna:'Manajemen Pengguna'};
 
 function router(){
-  const hash = (location.hash || '#dashboard').replace('#','');
+  if(!isLoggedIn()){ showLoginScreen(); return; }
+  let hash = (location.hash || '#dashboard').replace('#','');
+  if(hash === 'pengguna' && !isAdmin()){ hash = 'dashboard'; location.hash = '#dashboard'; }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.sidebar .nav-link').forEach(a=>a.classList.remove('active'));
   const page = document.getElementById('page-'+hash) ? hash : 'dashboard';
@@ -711,6 +1021,7 @@ function loadPage(page){
   if(page==='pembayaran') loadPayments();
   if(page==='laporan') loadReport();
   if(page==='pengaturan') loadSettingsForm();
+  if(page==='pengguna') loadUsers();
 }
 
 document.getElementById('btnToggleSidebar').addEventListener('click', ()=>{
@@ -955,6 +1266,7 @@ function recalcTotals(type){
   }
 }
 function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+function toPascalCase(s){ return s.split('_').map(capitalize).join(''); }
 
 function collectItems(type){
   const tbody = document.querySelector(type==='penawaran' ? '#tblItemPenawaran tbody' : '#tblItemInvoice tbody');
@@ -977,6 +1289,60 @@ function fillClientSelect(selectId, selectedId){
   const sel = document.getElementById(selectId);
   sel.innerHTML = '<option value="">-- Pilih Klien --</option>' + CLIENTS.map(c=>
     `<option value="${c.ID}" ${selectedId===c.ID?'selected':''}>${c.Nama} ${c.Perusahaan?'('+c.Perusahaan+')':''}</option>`).join('');
+}
+
+/* ================= MANAJEMEN PENGGUNA ================= */
+async function loadUsers(){
+  if(!isAdmin()){ return; }
+  const users = await api('auth','list');
+  if(DT.pengguna) DT.pengguna.destroy();
+  const tbody = document.querySelector('#tblPengguna tbody');
+  const me = getCurrentUser();
+  tbody.innerHTML = users.map(u=>`
+    <tr>
+      <td>${u.Nama}${me && me.ID===u.ID ? ' <span class="badge bg-secondary">Anda</span>' : ''}</td>
+      <td>${u.Username}</td>
+      <td><span class="badge bg-${u.Role==='Admin'?'primary':'secondary'}">${u.Role}</span></td>
+      <td><span class="badge bg-${u.Status==='Aktif'?'success':'danger'} badge-status">${u.Status}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline-primary" onclick='openUserModal(${JSON.stringify(u)})'><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${u.ID}','${u.Username}')"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>`).join('');
+  DT.pengguna = $('#tblPengguna').DataTable({language:{url:'https://cdn.datatables.net/plug-ins/1.13.8/i18n/id.json'}});
+}
+
+function openUserModal(data){
+  const form = document.getElementById('formPengguna');
+  form.reset();
+  document.getElementById('txtPasswordHint').textContent = data
+    ? 'Kosongkan jika tidak ingin mengganti kata sandi.'
+    : 'Wajib diisi untuk pengguna baru.';
+  form.Password.required = !data;
+  if(data){ Object.keys(data).forEach(k=>{ if(form[k]) form[k].value = data[k]; }); }
+  new bootstrap.Modal('#modalPengguna').show();
+}
+
+document.getElementById('formPengguna').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const data = Object.fromEntries(fd.entries());
+  const id = data.ID; delete data.ID;
+  if(!data.Password) delete data.Password;
+  try{
+    await api('auth', id ? 'update' : 'create', {id, data});
+    toast('success','Data pengguna tersimpan');
+    bootstrap.Modal.getInstance(document.getElementById('modalPengguna')).hide();
+    loadUsers();
+  }catch(err){ /* pesan error sudah ditampilkan oleh fungsi api() */ }
+});
+
+function deleteUser(id, username){
+  Swal.fire({title:`Hapus pengguna "${username}"?`, icon:'warning', showCancelButton:true, confirmButtonText:'Hapus', cancelButtonText:'Batal'}).then(async r=>{
+    if(r.isConfirmed){
+      try{ await api('auth','delete',{id}); toast('success','Pengguna dihapus'); loadUsers(); }catch(err){}
+    }
+  });
 }
 
 /* ================= PENAWARAN ================= */
@@ -1406,7 +1772,8 @@ async function loadSettingsForm(){
   applySettingsToUi();
   const form = document.getElementById('formSettings');
   Object.keys(SETTINGS).forEach(k=>{ if(form[k]) form[k].value = SETTINGS[k]; });
-  loadAssetPreview('logo'); loadAssetPreview('favicon'); loadAssetPreview('ttd'); loadAssetPreview('stempel'); loadAssetPreview('qris');
+  loadAssetPreview('logo'); loadAssetPreview('favicon'); loadAssetPreview('ttd'); loadAssetPreview('stempel'); loadAssetPreview('qris'); loadAssetPreview('logo_login'); loadAssetPreview('login_bg');
+  applyLoginBranding(); applyLoginTheme();
   loadBankRows(); loadEwalletRows();
 }
 
@@ -1501,10 +1868,10 @@ function setSidebarLogo(src){
 }
 
 async function loadAssetPreview(type){
-  const keyMap = {logo:'logo_file_id',favicon:'favicon_file_id',ttd:'ttd_file_id',stempel:'stempel_file_id',qris:'qris_file_id'};
+  const keyMap = {logo:'logo_file_id',favicon:'favicon_file_id',ttd:'ttd_file_id',stempel:'stempel_file_id',qris:'qris_file_id',logo_login:'logo_login_file_id',login_bg:'login_bg_file_id'};
   const fileId = SETTINGS[keyMap[type]];
-  const img = document.getElementById('prev'+capitalize(type));
-  const txt = document.getElementById('txt'+capitalize(type));
+  const img = document.getElementById('prev'+toPascalCase(type));
+  const txt = document.getElementById('txt'+toPascalCase(type));
   if(fileId){
     const f = await api('file','get',{fileId});
     if(f){
@@ -1524,11 +1891,13 @@ function handleAssetUpload(type, input){
     const base64 = reader.result.split(',')[1];
     const result = await api('settings','upload',{data:{type, base64, fileName:file.name, mimeType:file.type}});
     toast('success','File berhasil diunggah');
-    const img = document.getElementById('prev'+capitalize(type));
-    const txt = document.getElementById('txt'+capitalize(type));
+    const img = document.getElementById('prev'+toPascalCase(type));
+    const txt = document.getElementById('txt'+toPascalCase(type));
     img.src = result.preview; img.style.display='block'; txt.style.display='none';
     if(type==='logo'){ document.getElementById('topbarLogo').src = result.preview; document.getElementById('topbarLogo').style.display='block'; setSidebarLogo(result.preview); }
     if(type==='favicon'){ document.getElementById('faviconLink').href = result.preview; }
+    if(type==='logo_login'){ SETTINGS.logo_login_file_id = result.fileId || SETTINGS.logo_login_file_id; applyLoginBranding(); }
+    if(type==='login_bg'){ SETTINGS.login_bg_file_id = result.fileId || SETTINGS.login_bg_file_id; applyLoginTheme(); }
   };
   reader.readAsDataURL(file);
 }
@@ -1556,13 +1925,17 @@ function applySettingsToUi(){
 (async function init(){
   const savedTheme = localStorage.getItem('theme');
   if(savedTheme) document.documentElement.setAttribute('data-bs-theme', savedTheme);
+  document.getElementById('inpLoginApiUrl').value = localStorage.getItem('api_url') || '';
   try{
     SETTINGS = await api('settings','list');
     applySettingsToUi();
     loadAssetPreview('logo');
     loadAssetPreview('favicon');
+    applyLoginBranding();
+    applyLoginTheme();
   }catch(e){}
-  router();
+  if(isLoggedIn()){ showApp(); applyRoleUI(); router(); }
+  else { showLoginScreen(); }
 })();
 </script>
 </body>
