@@ -814,7 +814,7 @@ table.dataTable{font-size:.875rem;}
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 <script>
-const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbzyOglfr1n_jeVwJI_PCVj2Xf9Q83n_TNN20cjSbz1Y89IKwvFtNqLFCkyViDIU3IqO/exec';
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwfnDg9fbrKQB4OKMVlg8iMys0mcEdtGso2NHe6WTBjpMxNLLW52UVoUS6N6BTUloGa/exec';
 function getApiUrl(){ return localStorage.getItem('api_url') || DEFAULT_API_URL; }
 
 let SETTINGS = {};
@@ -1619,7 +1619,7 @@ async function buildInvoiceHtml(id){
         ${a.qris_file_id ? `<div class="mt-2"><b>QRIS:</b><br><img src="${a.qris_file_id}" style="height:120px;"></div>` : ''}
       </div>
       <div class="col-6 text-end">
-        ${a.ttd_file_id ? `<img src="${a.ttd_file_id}" style="height:55px;max-width:110px;object-fit:contain;">` : ''}
+        ${a.ttd_file_id ? `<img src="${a.ttd_file_id}" style="height:100px;max-width:200px;object-fit:contain;">` : ''}
         ${a.stempel_file_id ? `<img src="${a.stempel_file_id}" style="height:50px;max-width:100px;object-fit:contain;margin-left:-10px;">` : ''}
         <div class="mt-1">Hormat kami,<br>${s.nama_perusahaan}</div>
       </div>
