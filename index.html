@@ -145,6 +145,14 @@ body{
   #invoicePrintArea{padding:6mm;max-width:100%;font-size:.8rem;}
   #invoicePrintArea table{font-size:.72rem;}
 }
+#publicInvoiceScreen{position:fixed;inset:0;z-index:2000;display:none;overflow-y:auto;background:var(--bs-tertiary-bg,#f1f3f5);padding:1.5rem 1rem;}
+#publicInvoiceScreen .public-invoice-wrap{max-width:210mm;margin:0 auto;}
+#publicInvoiceScreen .public-invoice-actions{max-width:210mm;margin:0 auto 1rem auto;display:flex;justify-content:flex-end;gap:.5rem;}
+#publicInvoicePrintArea{background:#fff;color:#111;padding:20mm 15mm;max-width:210mm;margin:0 auto;box-sizing:border-box;border-radius:8px;box-shadow:0 4px 24px rgba(0,0,0,.08);}
+@media(max-width:576.98px){
+  #publicInvoicePrintArea{padding:6mm;max-width:100%;font-size:.8rem;}
+  #publicInvoicePrintArea table{font-size:.72rem;}
+}
 
 /* Buttons */
 .btn{border-radius:8px;font-weight:600;}
@@ -256,6 +264,16 @@ table.dataTable{font-size:.875rem;}
     <div class="text-center small mt-3">
       Sudah punya akun? <a href="#" id="linkTampilkanLogin">Masuk</a>
     </div>
+  </div>
+</div>
+
+<div id="publicInvoiceScreen">
+  <div class="public-invoice-actions">
+    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()"><i class="bi bi-printer"></i> Cetak</button>
+  </div>
+  <div class="public-invoice-wrap">
+    <div id="publicInvoiceAlertBox" class="alert alert-danger d-none"></div>
+    <div id="publicInvoicePrintArea"></div>
   </div>
 </div>
 
@@ -814,7 +832,7 @@ table.dataTable{font-size:.875rem;}
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 <script>
-const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbyOLv99UBIOAyhaEaMZ1m2tt4DgRHjW8ErhvRMPrab1EPsBIvbAgNsEbSSud87jh3_5/exec';
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbyzD0sGwDFfT0_skelAoeYFq8Or8e5H9kR-zNPLqZ19mRiwW5unsjfYSKQneBm7328b/exec';
 function getApiUrl(){ return localStorage.getItem('api_url') || DEFAULT_API_URL; }
 
 let SETTINGS = {};
@@ -1034,10 +1052,128 @@ document.getElementById('btnLogout').addEventListener('click', ()=>{
   });
 });
 
+/* ================= PUBLIC INVOICE (tanpa login) ================= */
+// Mengambil nomor invoice dari parameter URL, mis. ?invoice=INV-0001
+function getPublicInvoiceNomorFromUrl(){
+  const params = new URLSearchParams(location.search);
+  return (params.get('invoice') || params.get('nomor') || '').trim();
+}
+
+function showPublicInvoiceScreen(){
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('sidebar').style.display = 'none';
+  document.querySelector('.main-wrap').style.display = 'none';
+  document.getElementById('publicInvoiceScreen').style.display = 'block';
+}
+
+function renderPublicInvoiceError(message){
+  const box = document.getElementById('publicInvoiceAlertBox');
+  box.textContent = message || 'Invoice tidak ditemukan';
+  box.classList.remove('d-none');
+  document.getElementById('publicInvoicePrintArea').innerHTML = '';
+}
+
+function buildPublicInvoiceHtml(data){
+  const inv = data.invoice, s = data.settings || {}, a = data.assets || {};
+  const payments = data.payments || [];
+  const itemsRows = (inv.items||[]).map(it=>`
+    <tr><td>${it.Deskripsi}</td><td class="text-end">${it.Qty}</td><td class="text-end">${it.Satuan||'-'}</td><td class="text-end">${formatCurrency(it.Harga)}</td><td class="text-end">${formatCurrency(it.Subtotal)}</td></tr>
+  `).join('');
+  const paymentsRows = payments.length ? payments.map(p=>`
+    <tr><td>${formatDate(p.Tanggal)}</td><td>${formatCurrency(p.Jumlah)}</td><td>${p.Metode||'-'}</td><td>${p.Referensi||'-'}</td></tr>
+  `).join('') : '<tr><td colspan="4" class="text-center text-muted">Belum ada pembayaran</td></tr>';
+  const timelineEvents = [];
+  timelineEvents.push({t:inv.Tanggal, label:'Invoice dibuat ('+inv.Nomor+')'});
+  payments.forEach(p=>timelineEvents.push({t:p.Tanggal, label:'Pembayaran diterima '+formatCurrency(p.Jumlah)+' via '+(p.Metode||'-')}));
+  if(inv.JatuhTempo) timelineEvents.push({t:inv.JatuhTempo, label:'Jatuh tempo pembayaran'});
+  timelineEvents.push({t:inv.Tanggal, label:'Status saat ini: '+(inv.Status||'-')});
+  timelineEvents.sort((x,y)=> new Date(x.t) - new Date(y.t));
+  const timelineRows = timelineEvents.map(ev=>`<li><span class="tl-time">${formatDate(ev.t)}</span>${ev.label}</li>`).join('');
+  const link = data.link || '';
+  const bankRows = parseJsonSafe(s.rekening_bank_json, null) || ((s.bank_nama||s.bank_nomor) ? [{nama:s.bank_nama, nomor:s.bank_nomor, atas_nama:s.bank_atas_nama}] : []);
+  const ewalletRows = parseJsonSafe(s.ewallet_json, null) || ((s.ewallet_provider||s.ewallet_nomor) ? [{provider:s.ewallet_provider, nomor:s.ewallet_nomor, atas_nama:s.ewallet_atas_nama}] : []);
+  const bankListHtml = bankRows.length ? `<div><b>Rekening Bank:</b>${bankRows.map(b=>`<div class="mt-1">${b.nama||''} ${b.nomor||''}${b.atas_nama?' a.n. '+b.atas_nama:''}</div>`).join('')}</div>` : '';
+  const ewalletListHtml = ewalletRows.length ? `<div class="mt-2"><b>E-Wallet:</b>${ewalletRows.map(w=>`<div class="mt-1">${w.provider||''} ${w.nomor||''}${w.atas_nama?' a.n. '+w.atas_nama:''}</div>`).join('')}</div>` : '';
+  return `
+    <div class="d-flex justify-content-between align-items-start mb-4">
+      <div>
+        ${a.logo_file_id ? `<img src="${a.logo_file_id}" style="height:60px;">` : `<h4>${s.nama_perusahaan||''}</h4>`}
+        <div class="small text-muted mt-2">${s.alamat||''}<br>${s.telepon||''} ${s.email?'| '+s.email:''}<br>${s.npwp?'NPWP: '+s.npwp:''}</div>
+      </div>
+      <div class="text-end">
+        <h3>INVOICE</h3>
+        <div>No: <b>${inv.Nomor}</b></div>
+        <div>Tanggal: ${formatDate(inv.Tanggal)}</div>
+        <div>Jatuh Tempo: ${formatDate(inv.JatuhTempo)}</div>
+        <div>${statusBadge(inv.Status)}</div>
+      </div>
+    </div>
+    <div class="mb-3"><b>Ditagihkan kepada:</b><br>${inv.client?inv.client.Nama:''} ${inv.client&&inv.client.Perusahaan?'('+inv.client.Perusahaan+')':''}<br>${inv.client?inv.client.Alamat||'':''}</div>
+    <table class="table table-bordered"><thead><tr><th>Deskripsi</th><th class="text-end">Qty</th><th class="text-end">Satuan</th><th class="text-end">Harga</th><th class="text-end">Subtotal</th></tr></thead>
+    <tbody>${itemsRows}</tbody></table>
+    <div class="text-end mb-4">
+      <div>Subtotal: ${formatCurrency(inv.Subtotal)}</div>
+      ${(inv.Diskon || inv.DiskonNilai) ? `<div>Diskon${inv.DiskonTipe==='nominal'?'':' ('+(inv.DiskonNilai||inv.DiskonPersen||0)+'%)'}: ${formatCurrency(inv.Diskon||0)}</div>` : ''}
+      <div>Pajak: ${formatCurrency(inv.Pajak)}</div>
+      <div class="fs-5"><b>Total: ${formatCurrency(inv.Total)}</b></div>
+      <div>DP: ${formatCurrency(inv.DP)}</div>
+      <div>Terbayar: ${formatCurrency(inv.Terbayar)}</div>
+      <div><b>Sisa Tagihan: ${formatCurrency(inv.Sisa)}</b></div>
+    </div>
+    <div class="row">
+      <div class="col-6">
+        ${bankListHtml}
+        ${ewalletListHtml}
+        ${a.qris_file_id ? `<div class="mt-2"><b>QRIS:</b><br><img src="${a.qris_file_id}" style="height:120px;"></div>` : ''}
+      </div>
+      <div class="col-6 text-end">
+        ${a.ttd_file_id ? `<img src="${a.ttd_file_id}" style="height:100px;max-width:200px;object-fit:contain;">` : ''}
+        ${a.stempel_file_id ? `<img src="${a.stempel_file_id}" style="height:50px;max-width:100px;object-fit:contain;margin-left:-10px;">` : ''}
+        <div class="mt-1">Hormat kami,<br>${s.nama_perusahaan||''}</div>
+      </div>
+    </div>
+    ${inv.Catatan ? `<div class="mt-3 small text-muted">Catatan: ${inv.Catatan}</div>` : ''}
+    <div class="row mt-4">
+      <div class="col-6">
+        <h6 class="fw-bold">Riwayat Pembayaran</h6>
+        <table class="table table-sm table-bordered"><thead><tr><th>Tanggal</th><th>Jumlah</th><th>Metode</th><th>Referensi</th></tr></thead>
+        <tbody>${paymentsRows}</tbody></table>
+      </div>
+      <div class="col-6">
+        <h6 class="fw-bold">Timeline Aktivitas</h6>
+        <ul class="timeline-list">${timelineRows}</ul>
+      </div>
+    </div>
+    <div class="text-center mt-3">
+      <div id="qr-public-${inv.ID}" class="invoice-qr-box"></div>
+      <div class="small text-muted mt-1">Pindai untuk melihat invoice ini secara online</div>
+    </div>
+  `;
+}
+
+// Menampilkan halaman Public Invoice tanpa login, dipanggil sebelum cek status login.
+async function showPublicInvoice(nomor){
+  showPublicInvoiceScreen();
+  document.getElementById('publicInvoiceAlertBox').classList.add('d-none');
+  try{
+    const data = await api('invoices','public',{nomor});
+    if(data && data.settings){
+      SETTINGS = data.settings;
+      document.title = (data.settings.nama_perusahaan || 'BARSOLUTION') + ' - Invoice ' + data.invoice.Nomor;
+    }
+    document.getElementById('publicInvoicePrintArea').innerHTML = buildPublicInvoiceHtml(data);
+    renderQr('qr-public-'+data.invoice.ID, data.link);
+  }catch(err){
+    renderPublicInvoiceError(err.message || 'Invoice tidak ditemukan');
+  }
+}
+
 /* ================= ROUTER ================= */
 const pageTitles = {dashboard:'Dashboard',klien:'Klien',layanan:'Layanan',penawaran:'Penawaran',invoice:'Invoice',pembayaran:'Pembayaran',laporan:'Laporan',pengaturan:'Pengaturan',pengguna:'Manajemen Pengguna'};
 
 function router(){
+  const publicNomor = getPublicInvoiceNomorFromUrl();
+  if(publicNomor){ showPublicInvoice(publicNomor); return; }
   if(!isLoggedIn()){ showLoginScreen(); return; }
   let hash = (location.hash || '#dashboard').replace('#','');
   if(hash === 'pengguna' && !isAdmin()){ hash = 'dashboard'; location.hash = '#dashboard'; }
@@ -2042,6 +2178,12 @@ function applySettingsToUi(){
   const savedTheme = localStorage.getItem('theme');
   if(savedTheme) document.documentElement.setAttribute('data-bs-theme', savedTheme);
   document.getElementById('inpLoginApiUrl').value = localStorage.getItem('api_url') || '';
+
+  // Cek parameter invoice pada URL SEBELUM cek status login. Jika ada, tampilkan
+  // langsung halaman Public Invoice tanpa login dan hentikan proses init selanjutnya.
+  const publicNomor = getPublicInvoiceNomorFromUrl();
+  if(publicNomor){ await showPublicInvoice(publicNomor); return; }
+
   try{
     SETTINGS = await api('settings','list');
     applySettingsToUi();
