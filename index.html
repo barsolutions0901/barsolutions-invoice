@@ -139,6 +139,12 @@ body{
   #modalInvoice .modal-content,#modalPenawaran .modal-content{
     height:100%;min-height:0;border-radius:14px;display:flex;flex-direction:column;overflow:hidden;
   }
+  /* Form Invoice/Penawaran adalah child langsung dari .modal-content (di antara modal-content
+     dan modal-header/body/footer), sehingga harus ikut jadi flex container juga agar rantai
+     flex tidak putus dan .modal-body benar-benar bisa jadi area scroll internal. */
+  #formInvoice,#formPenawaran{
+    display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;
+  }
   #modalInvoice .modal-body,#modalPenawaran .modal-body{
     flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
   }
