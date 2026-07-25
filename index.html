@@ -90,6 +90,24 @@ body{
 .stat-card h3{font-weight:800;margin-top:.15rem;}
 .stat-card .small{font-weight:600;color:var(--bs-secondary-color);}
 
+.stat-card.stat-clickable{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease;}
+.stat-card.stat-clickable:hover{transform:translateY(-3px);box-shadow:0 6px 16px 0 rgba(0,0,0,.1);}
+.stat-card.stat-clickable:active{transform:translateY(-1px);}
+
+/* Aktivitas Terbaru timeline */
+.activity-icon{
+  width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:.95rem;
+}
+#listAktivitas .list-group-item{border-left:0;border-right:0;padding-left:0;padding-right:0;}
+#listAktivitas .list-group-item:first-child{border-top:0;}
+
+/* Invoice Perlu Perhatian */
+#listInvoicePerhatian .list-group-item{padding-left:0;padding-right:0;border-left:0;border-right:0;}
+
+/* Filter banner shown on list pages when navigated from dashboard */
+.dash-filter-banner{border-radius:10px;}
+
 #loadingOverlay{position:fixed;inset:0;background:rgba(255,255,255,.6);z-index:2000;display:none;align-items:center;justify-content:center;}
 [data-bs-theme="dark"] #loadingOverlay{background:rgba(0,0,0,.6);}
 
@@ -410,25 +428,49 @@ table.dataTable{font-size:.875rem;}
   <!-- DASHBOARD -->
   <div class="page" id="page-dashboard">
     <div class="row g-3">
-      <div class="col-md-3"><div class="card stat-card"><div class="d-flex align-items-center justify-content-between"><div><div class="small">Total Klien</div><h3 id="statKlien">0</h3></div><div class="kpi-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-people"></i></div></div></div></div>
-      <div class="col-md-3"><div class="card stat-card"><div class="d-flex align-items-center justify-content-between"><div><div class="small">Total Invoice</div><h3 id="statInvoice">0</h3></div><div class="kpi-icon bg-success bg-opacity-10 text-success"><i class="bi bi-receipt"></i></div></div></div></div>
-      <div class="col-md-3"><div class="card stat-card"><div class="d-flex align-items-center justify-content-between"><div><div class="small">Total Penawaran</div><h3 id="statPenawaran">0</h3></div><div class="kpi-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-file-earmark-text"></i></div></div></div></div>
-      <div class="col-md-3"><div class="card stat-card"><div class="d-flex align-items-center justify-content-between"><div><div class="small">Pendapatan</div><h3 id="statPendapatan">Rp 0</h3></div><div class="kpi-icon bg-info bg-opacity-10 text-info"><i class="bi bi-cash-stack"></i></div></div></div></div>
+      <div class="col-md-3"><div class="card stat-card stat-clickable" onclick="dashboardGo('klien')" title="Lihat semua klien"><div class="d-flex align-items-center justify-content-between"><div><div class="small">Total Klien</div><h3 id="statKlien">0</h3></div><div class="kpi-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-people"></i></div></div></div></div>
+      <div class="col-md-3"><div class="card stat-card stat-clickable" onclick="dashboardGo('invoice')" title="Lihat semua invoice"><div class="d-flex align-items-center justify-content-between"><div><div class="small">Total Invoice</div><h3 id="statInvoice">0</h3></div><div class="kpi-icon bg-success bg-opacity-10 text-success"><i class="bi bi-receipt"></i></div></div></div></div>
+      <div class="col-md-3"><div class="card stat-card stat-clickable" onclick="dashboardGo('penawaran')" title="Lihat semua penawaran"><div class="d-flex align-items-center justify-content-between"><div><div class="small">Total Penawaran</div><h3 id="statPenawaran">0</h3></div><div class="kpi-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-file-earmark-text"></i></div></div></div></div>
+      <div class="col-md-3"><div class="card stat-card stat-clickable" onclick="dashboardGo('laporan')" title="Lihat laporan pendapatan"><div class="d-flex align-items-center justify-content-between"><div><div class="small">Pendapatan</div><h3 id="statPendapatan">Rp 0</h3></div><div class="kpi-icon bg-info bg-opacity-10 text-info"><i class="bi bi-cash-stack"></i></div></div></div></div>
     </div>
     <div class="row g-3 mt-1">
-      <div class="col-md-2 col-6"><div class="card stat-card"><div class="small">Total Penawaran</div><h5 class="fw-bold mb-0" id="statTotalPenawaran">0</h5></div></div>
-      <div class="col-md-2 col-6"><div class="card stat-card"><div class="small">Penawaran Dikonversi</div><h5 class="fw-bold mb-0" id="statPenawaranDikonversi">0</h5></div></div>
-      <div class="col-md-2 col-6"><div class="card stat-card"><div class="small">Invoice Belum Lunas</div><h5 class="fw-bold mb-0 text-warning" id="statInvoiceBelumLunas">0</h5></div></div>
-      <div class="col-md-2 col-6"><div class="card stat-card"><div class="small">Invoice Lunas</div><h5 class="fw-bold mb-0 text-success" id="statInvoiceLunas">0</h5></div></div>
-      <div class="col-md-2 col-6"><div class="card stat-card"><div class="small">Total Piutang</div><h5 class="fw-bold mb-0 text-danger" id="statTotalPiutang">Rp 0</h5></div></div>
-      <div class="col-md-2 col-6"><div class="card stat-card"><div class="small">Pendapatan Bulan Ini</div><h5 class="fw-bold mb-0 text-primary" id="statPendapatanBulanIni">Rp 0</h5></div></div>
+      <div class="col-md-2 col-6"><div class="card stat-card stat-clickable" onclick="dashboardGo('penawaran')" title="Lihat semua penawaran"><div class="small">Total Penawaran</div><h5 class="fw-bold mb-0" id="statTotalPenawaran">0</h5></div></div>
+      <div class="col-md-2 col-6"><div class="card stat-card stat-clickable" onclick="dashboardGo('penawaran',{type:'status',value:'Dikonversi',label:'Penawaran dengan status Dikonversi'})" title="Lihat penawaran yang sudah dikonversi"><div class="small">Penawaran Dikonversi</div><h5 class="fw-bold mb-0" id="statPenawaranDikonversi">0</h5></div></div>
+      <div class="col-md-2 col-6"><div class="card stat-card stat-clickable" onclick="dashboardGo('invoice',{type:'notLunas',label:'Invoice yang belum lunas / jatuh tempo'})" title="Lihat invoice yang belum lunas"><div class="small">Invoice Belum Lunas</div><h5 class="fw-bold mb-0 text-warning" id="statInvoiceBelumLunas">0</h5></div></div>
+      <div class="col-md-2 col-6"><div class="card stat-card stat-clickable" onclick="dashboardGo('invoice',{type:'status',value:'Lunas',label:'Invoice berstatus Lunas'})" title="Lihat invoice yang sudah lunas"><div class="small">Invoice Lunas</div><h5 class="fw-bold mb-0 text-success" id="statInvoiceLunas">0</h5></div></div>
+      <div class="col-md-2 col-6"><div class="card stat-card stat-clickable" onclick="dashboardGo('invoice',{type:'notLunas',label:'Invoice dengan sisa tagihan (piutang)'})" title="Lihat invoice dengan piutang"><div class="small">Total Piutang</div><h5 class="fw-bold mb-0 text-danger" id="statTotalPiutang">Rp 0</h5></div></div>
+      <div class="col-md-2 col-6"><div class="card stat-card stat-clickable" onclick="dashboardGo('pembayaran',{type:'month',label:'Pembayaran yang tercatat bulan ini'})" title="Lihat pembayaran bulan ini"><div class="small">Pendapatan Bulan Ini</div><h5 class="fw-bold mb-0 text-primary" id="statPendapatanBulanIni">Rp 0</h5></div></div>
     </div>
     <div class="row g-3 mt-1">
-      <div class="col-lg-8"><div class="card p-3"><h6 class="fw-bold mb-3">Grafik Pendapatan</h6><div id="chartPendapatan"></div></div></div>
+      <div class="col-lg-8">
+        <div class="card p-3">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <h6 class="fw-bold mb-0">Grafik Pendapatan Bulanan</h6>
+            <div class="btn-group btn-group-sm" role="group" id="grpRevenuePeriod">
+              <button type="button" class="btn btn-outline-primary" data-period="1m" onclick="setRevenuePeriod('1m')">Bulan Ini</button>
+              <button type="button" class="btn btn-outline-primary" data-period="3m" onclick="setRevenuePeriod('3m')">3 Bulan</button>
+              <button type="button" class="btn btn-outline-primary active" data-period="6m" onclick="setRevenuePeriod('6m')">6 Bulan</button>
+              <button type="button" class="btn btn-outline-primary" data-period="1y" onclick="setRevenuePeriod('1y')">1 Tahun</button>
+            </div>
+          </div>
+          <div id="chartPendapatan"></div>
+        </div>
+      </div>
       <div class="col-lg-4"><div class="card p-3"><h6 class="fw-bold mb-3">Status Invoice</h6><div id="chartStatus"></div></div></div>
     </div>
     <div class="row g-3 mt-1">
-      <div class="col-12"><div class="card p-3"><h6 class="fw-bold mb-3">Aktivitas Terbaru</h6><ul class="list-group list-group-flush" id="listAktivitas"></ul></div></div>
+      <div class="col-lg-6">
+        <div class="card p-3 h-100">
+          <h6 class="fw-bold mb-3"><i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>Invoice Perlu Perhatian</h6>
+          <div id="listInvoicePerhatian"></div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card p-3 h-100">
+          <h6 class="fw-bold mb-3"><i class="bi bi-clock-history me-1"></i>Aktivitas Terbaru</h6>
+          <ul class="list-group list-group-flush" id="listAktivitas"></ul>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -471,6 +513,7 @@ table.dataTable{font-size:.875rem;}
         <h6 class="fw-bold mb-0">Data Penawaran</h6>
         <button class="btn btn-primary btn-sm rounded-3" onclick="openQuotationModal()"><i class="bi bi-plus-lg"></i> Buat Penawaran</button>
       </div>
+      <div id="filterBannerPenawaran"></div>
       <div class="table-responsive">
       <table class="table table-hover align-middle w-100" id="tblPenawaran">
         <thead><tr><th>Nomor</th><th>Klien</th><th>Tanggal</th><th>Total</th><th>Status</th><th>Aksi</th></tr></thead>
@@ -487,6 +530,7 @@ table.dataTable{font-size:.875rem;}
         <h6 class="fw-bold mb-0">Data Invoice</h6>
         <button class="btn btn-primary btn-sm rounded-3" onclick="openInvoiceModal()"><i class="bi bi-plus-lg"></i> Buat Invoice</button>
       </div>
+      <div id="filterBannerInvoice"></div>
       <div class="table-responsive">
       <table class="table table-hover align-middle w-100" id="tblInvoice">
         <thead><tr><th>Nomor</th><th>Klien</th><th>Tanggal</th><th>Jatuh Tempo</th><th>Total</th><th>DP</th><th>Sisa Tagihan</th><th>Status</th><th>Aksi</th></tr></thead>
@@ -503,6 +547,7 @@ table.dataTable{font-size:.875rem;}
         <h6 class="fw-bold mb-0">Data Pembayaran</h6>
         <button class="btn btn-primary btn-sm rounded-3" onclick="openPaymentModal()"><i class="bi bi-plus-lg"></i> Catat Pembayaran</button>
       </div>
+      <div id="filterBannerPembayaran"></div>
       <div class="table-responsive">
       <table class="table table-hover align-middle w-100" id="tblPembayaran">
         <thead><tr><th>Invoice</th><th>Tanggal</th><th>Jumlah</th><th>Metode</th><th>Referensi</th><th>Aksi</th></tr></thead>
@@ -1290,6 +1335,9 @@ document.getElementById('btnSimpanApiUrl').addEventListener('click', ()=>{
 
 /* ================= DASHBOARD ================= */
 let apexRevenue, apexStatus;
+let REVENUE_PERIOD = '6m';
+let DASH_FILTER = null; // {page, type, value, label} - set by dashboardGo(), consumed by loadInvoices/loadQuotations/loadPayments
+
 async function loadDashboard(){
   const data = await api('dashboard','get');
   document.getElementById('statKlien').textContent = data.totalKlien;
@@ -1317,17 +1365,7 @@ async function loadDashboard(){
   document.getElementById('statTotalPiutang').textContent = formatCurrency(totalPiutang);
   document.getElementById('statPendapatanBulanIni').textContent = formatCurrency(pendapatanBulanIni);
 
-  const months = Object.keys(data.pendapatanBulanan).sort();
-  const values = months.map(m=>data.pendapatanBulanan[m]);
-  if(apexRevenue) apexRevenue.destroy();
-  apexRevenue = new ApexCharts(document.querySelector('#chartPendapatan'), {
-    chart:{type:'area',height:280,toolbar:{show:false}},
-    series:[{name:'Pendapatan',data:values}],
-    xaxis:{categories:months},
-    colors:[SETTINGS.warna_utama||'#0d6efd'],
-    dataLabels:{enabled:false}
-  });
-  apexRevenue.render();
+  renderRevenueChart();
 
   if(apexStatus) apexStatus.destroy();
   const statusLabels = Object.keys(data.statusInvoice);
@@ -1339,13 +1377,165 @@ async function loadDashboard(){
   });
   apexStatus.render();
 
-  const list = document.getElementById('listAktivitas');
-  list.innerHTML = '';
-  data.aktivitasTerbaru.forEach(a=>{
-    list.innerHTML += `<li class="list-group-item d-flex justify-content-between">
-      <span><b>${a.Aksi}</b> - ${a.Deskripsi}</span>
-      <span class="text-muted small">${new Date(a.Waktu).toLocaleString('id-ID')}</span></li>`;
+  renderInvoicePerhatian(invoicesAll);
+  renderAktivitas(data.aktivitasTerbaru);
+}
+
+/* ---- Grafik Pendapatan Bulanan (dengan filter periode) ---- */
+function setRevenuePeriod(period){
+  REVENUE_PERIOD = period;
+  document.querySelectorAll('#grpRevenuePeriod button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.period===period);
   });
+  renderRevenueChart();
+}
+
+function formatCurrencyShort(v){
+  const n = Number(v)||0;
+  const symbol = SETTINGS.mata_uang === 'USD' ? '$' : 'Rp';
+  if(Math.abs(n)>=1000000000) return symbol+' '+(n/1000000000).toFixed(1)+'M';
+  if(Math.abs(n)>=1000000) return symbol+' '+(n/1000000).toFixed(1)+'jt';
+  if(Math.abs(n)>=1000) return symbol+' '+(n/1000).toFixed(0)+'rb';
+  return symbol+' '+n;
+}
+
+function renderRevenueChart(){
+  const now = new Date();
+  const paid = PAYMENTS_CACHE || [];
+  let categories = [], values = [], chartType = 'area';
+
+  if(REVENUE_PERIOD==='1m'){
+    chartType = 'bar';
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+    const dailyTotals = Array(daysInMonth).fill(0);
+    paid.forEach(p=>{
+      const d = new Date(p.Tanggal);
+      if(!isNaN(d) && d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear()){
+        dailyTotals[d.getDate()-1] += Number(p.Jumlah)||0;
+      }
+    });
+    categories = dailyTotals.map((_,i)=>String(i+1));
+    values = dailyTotals;
+  } else {
+    const monthsCount = REVENUE_PERIOD==='3m' ? 3 : REVENUE_PERIOD==='1y' ? 12 : 6;
+    const monthKeys = [];
+    for(let i=monthsCount-1;i>=0;i--){
+      const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+      monthKeys.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));
+    }
+    const totals = {}; monthKeys.forEach(k=>totals[k]=0);
+    paid.forEach(p=>{
+      const d = new Date(p.Tanggal);
+      if(!isNaN(d)){
+        const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+        if(key in totals) totals[key] += Number(p.Jumlah)||0;
+      }
+    });
+    const monthNamesId = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    categories = monthKeys.map(k=>{ const parts=k.split('-'); return monthNamesId[Number(parts[1])-1]+' '+parts[0]; });
+    values = monthKeys.map(k=>totals[k]);
+  }
+
+  if(apexRevenue) apexRevenue.destroy();
+  apexRevenue = new ApexCharts(document.querySelector('#chartPendapatan'), {
+    chart:{type:chartType, height:280, toolbar:{show:false}},
+    series:[{name:'Pendapatan', data:values}],
+    xaxis:{categories},
+    colors:[SETTINGS.warna_utama||'#0d6efd'],
+    dataLabels:{enabled:false},
+    yaxis:{labels:{formatter:(v)=>formatCurrencyShort(v)}},
+    tooltip:{y:{formatter:(v)=>formatCurrency(v)}}
+  });
+  apexRevenue.render();
+}
+
+/* ---- Card Invoice Perlu Perhatian ---- */
+function renderInvoicePerhatian(invoicesAll){
+  const container = document.getElementById('listInvoicePerhatian');
+  if(!container) return;
+  const relevant = (invoicesAll||[]).filter(i=> i.Status && i.Status!=='Lunas');
+  relevant.sort((a,b)=>{
+    const wA = a.Status==='Jatuh Tempo' ? 0 : 1;
+    const wB = b.Status==='Jatuh Tempo' ? 0 : 1;
+    if(wA!==wB) return wA-wB;
+    return new Date(a.JatuhTempo||a.Tanggal) - new Date(b.JatuhTempo||b.Tanggal);
+  });
+  const top5 = relevant.slice(0,5);
+  if(!top5.length){
+    container.innerHTML = '<div class="text-center text-muted py-4"><i class="bi bi-check-circle fs-3 d-block mb-2 text-success"></i>Semua invoice dalam kondisi baik</div>';
+    return;
+  }
+  container.innerHTML = '<div class="list-group list-group-flush">' + top5.map(i=>`
+    <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div>
+        <div class="fw-semibold">${i.Nomor} ${statusBadge(i.Status)}</div>
+        <div class="small text-muted">${i.NamaKlien||'-'}</div>
+      </div>
+      <div class="text-end">
+        <div class="fw-bold text-danger">${formatCurrency(i.Sisa)}</div>
+        <button class="btn btn-sm btn-outline-primary mt-1" onclick="viewInvoicePdf('${i.ID}')"><i class="bi bi-eye"></i> Lihat Invoice</button>
+      </div>
+    </div>`).join('') + '</div>';
+}
+
+/* ---- Card Aktivitas Terbaru (log lokal + data backend jika tersedia) ---- */
+const ACTIVITY_ICON_MAP = {
+  'Invoice dibuat':{icon:'bi-file-earmark-plus',color:'success'},
+  'Invoice diedit':{icon:'bi-pencil-square',color:'primary'},
+  'Email dikirim':{icon:'bi-envelope-check',color:'info'},
+  'WhatsApp dibuka':{icon:'bi-whatsapp',color:'success'},
+  'Pembayaran dicatat':{icon:'bi-cash-coin',color:'warning'},
+  'Quotation dibuat':{icon:'bi-file-earmark-text',color:'secondary'}
+};
+
+function logActivity(aksi, deskripsi){
+  try{
+    const log = JSON.parse(localStorage.getItem('app_activity_log') || '[]');
+    log.unshift({Aksi:aksi, Deskripsi:deskripsi||'', Waktu:new Date().toISOString()});
+    localStorage.setItem('app_activity_log', JSON.stringify(log.slice(0,30)));
+  }catch(e){}
+}
+
+function getLocalActivityLog(){
+  try{ return JSON.parse(localStorage.getItem('app_activity_log') || '[]'); }catch(e){ return []; }
+}
+
+function renderAktivitas(backendList){
+  const list = document.getElementById('listAktivitas');
+  if(!list) return;
+  const localLog = getLocalActivityLog();
+  const backendLog = (backendList||[]).map(a=>({Aksi:a.Aksi, Deskripsi:a.Deskripsi, Waktu:a.Waktu}));
+  const merged = [...localLog, ...backendLog]
+    .filter(a=>a && a.Waktu && !isNaN(new Date(a.Waktu)))
+    .sort((a,b)=> new Date(b.Waktu) - new Date(a.Waktu))
+    .slice(0,8);
+  if(!merged.length){
+    list.innerHTML = '<li class="list-group-item text-center text-muted">Belum ada aktivitas</li>';
+    return;
+  }
+  list.innerHTML = merged.map(a=>{
+    const meta = ACTIVITY_ICON_MAP[a.Aksi] || {icon:'bi-clock-history', color:'secondary'};
+    return `<li class="list-group-item d-flex align-items-start gap-2">
+      <span class="activity-icon bg-${meta.color} bg-opacity-10 text-${meta.color}"><i class="bi ${meta.icon}"></i></span>
+      <div class="flex-grow-1">
+        <div><b>${a.Aksi}</b>${a.Deskripsi ? ' - '+a.Deskripsi : ''}</div>
+        <div class="text-muted small">${new Date(a.Waktu).toLocaleString('id-ID')}</div>
+      </div>
+    </li>`;
+  }).join('');
+}
+
+/* ---- Navigasi interaktif dari card dashboard ke halaman terkait + filter ---- */
+function dashboardGo(page, filter){
+  DASH_FILTER = filter ? Object.assign({page}, filter) : null;
+  const currentHash = (location.hash || '').replace('#','');
+  if(currentHash === page){ loadPage(page); }
+  else{ location.hash = '#'+page; }
+}
+
+function clearDashFilter(page){
+  DASH_FILTER = null;
+  loadPage(page);
 }
 
 /* ================= KLIEN ================= */
@@ -1603,10 +1793,16 @@ function deleteUser(id, username){
 
 /* ================= PENAWARAN ================= */
 async function loadQuotations(){
-  const [quotations] = await Promise.all([api('quotations','list')]);
+  let [quotations] = await Promise.all([api('quotations','list')]);
   if(!SERVICES.length) SERVICES = await api('services','list');
   if(!CLIENTS.length) CLIENTS = await api('clients','list');
   if(DT.penawaran) DT.penawaran.destroy();
+  const banner = document.getElementById('filterBannerPenawaran');
+  if(DASH_FILTER && DASH_FILTER.page==='penawaran'){
+    const f = DASH_FILTER;
+    if(f.type==='status') quotations = quotations.filter(q=>q.Status===f.value);
+    if(banner) banner.innerHTML = `<div class="alert alert-primary dash-filter-banner d-flex justify-content-between align-items-center py-2 px-3 mb-3"><span><i class="bi bi-funnel-fill me-1"></i>${f.label}</span><button class="btn btn-sm btn-outline-primary" onclick="clearDashFilter('penawaran')">Tampilkan Semua</button></div>`;
+  } else if(banner){ banner.innerHTML = ''; }
   const tbody = document.querySelector('#tblPenawaran tbody');
   tbody.innerHTML = quotations.map(q=>`
     <tr>
@@ -1651,6 +1847,7 @@ document.getElementById('formPenawaran').addEventListener('submit', async e=>{
   data.items = collectItems('penawaran');
   if(!data.items.length){ toast('error','Tambahkan minimal 1 item'); return; }
   await api('quotations', id ? 'update':'create', {id, data});
+  if(!id) logActivity('Quotation dibuat', formatCurrency(data.items.reduce((s,it)=>s+(Number(it.Qty)||0)*(Number(it.Harga)||0),0)));
   toast('success','Penawaran tersimpan');
   bootstrap.Modal.getInstance(document.getElementById('modalPenawaran')).hide();
   loadQuotations();
@@ -1674,8 +1871,16 @@ async function loadInvoices(){
   if(!SERVICES.length) SERVICES = await api('services','list');
   if(!CLIENTS.length) CLIENTS = await api('clients','list');
   if(DT.invoice) DT.invoice.destroy();
+  let list = INVOICES_CACHE;
+  const banner = document.getElementById('filterBannerInvoice');
+  if(DASH_FILTER && DASH_FILTER.page==='invoice'){
+    const f = DASH_FILTER;
+    if(f.type==='status') list = list.filter(i=>i.Status===f.value);
+    else if(f.type==='notLunas') list = list.filter(i=>i.Status && i.Status!=='Lunas');
+    if(banner) banner.innerHTML = `<div class="alert alert-primary dash-filter-banner d-flex justify-content-between align-items-center py-2 px-3 mb-3"><span><i class="bi bi-funnel-fill me-1"></i>${f.label}</span><button class="btn btn-sm btn-outline-primary" onclick="clearDashFilter('invoice')">Tampilkan Semua</button></div>`;
+  } else if(banner){ banner.innerHTML = ''; }
   const tbody = document.querySelector('#tblInvoice tbody');
-  tbody.innerHTML = INVOICES_CACHE.map(i=>`
+  tbody.innerHTML = list.map(i=>`
     <tr>
       <td>${i.Nomor}</td><td>${i.NamaKlien}</td><td>${formatDate(i.Tanggal)}</td><td>${formatDate(i.JatuhTempo)}</td>
       <td>${formatCurrency(i.Total)}</td><td>${formatCurrency(i.DP)}</td><td>${formatCurrency(i.Sisa)}</td><td>${statusBadge(i.Status)}</td>
@@ -1768,6 +1973,7 @@ document.getElementById('formInvoice').addEventListener('submit', async e=>{
   data.DP = dpVal;
   data.Sisa = Math.max(total - dpVal, 0);
   await api('invoices', id ? 'update':'create', {id, data});
+  logActivity(id ? 'Invoice diedit' : 'Invoice dibuat', 'Total '+formatCurrency(total));
   toast('success','Invoice tersimpan');
   bootstrap.Modal.getInstance(document.getElementById('modalInvoice')).hide();
   loadInvoices();
@@ -1950,6 +2156,7 @@ function sendInvoiceEmail(id){
     });
     try{
       await api('invoices','sendemail',{id, data:{subjek, isi, to: emailTujuan}});
+      logActivity('Email dikirim', 'Invoice '+inv.Nomor+' ke '+emailTujuan);
       toast('success','Email invoice berhasil dikirim ke '+emailTujuan);
     }catch(e){}
   });
@@ -1970,6 +2177,7 @@ function sendInvoiceWhatsapp(id){
       toast('info','Nomor WhatsApp klien belum diisi, silakan pilih kontak tujuan');
       window.open('https://wa.me/?text='+encodeURIComponent(pesan), '_blank');
     }
+    logActivity('WhatsApp dibuka', 'Invoice '+inv.Nomor);
   });
 }
 
@@ -2014,9 +2222,21 @@ async function duplicateInvoice(id){
 
 /* ================= PEMBAYARAN ================= */
 async function loadPayments(){
-  const payments = await api('payments','list');
+  let payments = await api('payments','list');
   if(!INVOICES_CACHE.length) INVOICES_CACHE = await api('invoices','list');
   if(DT.pembayaran) DT.pembayaran.destroy();
+  const banner = document.getElementById('filterBannerPembayaran');
+  if(DASH_FILTER && DASH_FILTER.page==='pembayaran'){
+    const f = DASH_FILTER;
+    if(f.type==='month'){
+      const now = new Date();
+      payments = payments.filter(p=>{
+        const d = new Date(p.Tanggal);
+        return !isNaN(d) && d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+      });
+    }
+    if(banner) banner.innerHTML = `<div class="alert alert-primary dash-filter-banner d-flex justify-content-between align-items-center py-2 px-3 mb-3"><span><i class="bi bi-funnel-fill me-1"></i>${f.label}</span><button class="btn btn-sm btn-outline-primary" onclick="clearDashFilter('pembayaran')">Tampilkan Semua</button></div>`;
+  } else if(banner){ banner.innerHTML = ''; }
   const tbody = document.querySelector('#tblPembayaran tbody');
   tbody.innerHTML = payments.map(p=>`
     <tr>
@@ -2040,6 +2260,7 @@ document.getElementById('formPembayaran').addEventListener('submit', async e=>{
   const data = Object.fromEntries(fd.entries());
   const id = data.ID; delete data.ID;
   await api('payments', id ? 'update':'create', {id, data});
+  if(!id) logActivity('Pembayaran dicatat', 'Sebesar '+formatCurrency(data.Jumlah));
   toast('success','Pembayaran tersimpan');
   bootstrap.Modal.getInstance(document.getElementById('modalPembayaran')).hide();
   loadPayments();
