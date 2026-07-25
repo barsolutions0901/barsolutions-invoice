@@ -131,76 +131,93 @@ body{
   .d-flex.justify-content-between.align-items-center.mb-3{flex-wrap:wrap;gap:.5rem;}
   .topbar .d-flex.align-items-center.gap-2{gap:.35rem !important;}
 
-  /* Modal Tambah/Edit Invoice: hampir full-screen dan lebih nyaman di layar kecil */
-  #modalInvoice .modal-dialog{margin:0;max-width:100%;width:100%;height:100dvh;height:100vh;}
-  #modalInvoice .modal-content{height:100%;border-radius:0;display:flex;flex-direction:column;}
-  #modalInvoice .modal-body{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;}
-  #modalInvoice .modal-header,#modalInvoice .modal-footer{flex:0 0 auto;}
-  #modalInvoice .modal-footer{gap:.5rem;}
-  #modalInvoice .modal-footer .btn{flex:1 1 50%;justify-content:center;display:inline-flex;align-items:center;gap:.35rem;min-height:44px;}
-  #modalInvoice .invoice-item-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px;}
-  #modalInvoice #tblItemInvoice{min-width:640px;}
-  #modalInvoice .form-control,#modalInvoice .form-select{min-height:40px;}
+  /* Modal Tambah/Edit Invoice & Penawaran: ~90vh, isi bisa discroll, footer sticky di bawah */
+  #modalInvoice .modal-dialog,#modalPenawaran .modal-dialog{
+    margin:5vh auto;max-width:calc(100% - 1rem);width:100%;
+    height:90vh;height:90dvh;
+  }
+  #modalInvoice .modal-content,#modalPenawaran .modal-content{
+    height:100%;border-radius:14px;display:flex;flex-direction:column;overflow:hidden;
+  }
+  #modalInvoice .modal-body,#modalPenawaran .modal-body{
+    flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  }
+  #modalInvoice .modal-header,#modalInvoice .modal-footer,
+  #modalPenawaran .modal-header,#modalPenawaran .modal-footer{flex:0 0 auto;}
+  #modalInvoice .modal-footer,#modalPenawaran .modal-footer{
+    gap:.5rem;position:sticky;bottom:0;background:var(--bs-body-bg);z-index:2;
+  }
+  #modalInvoice .modal-footer .btn,#modalPenawaran .modal-footer .btn{
+    flex:1 1 50%;justify-content:center;display:inline-flex;align-items:center;gap:.35rem;min-height:44px;
+  }
+  #modalInvoice .form-control,#modalInvoice .form-select,
+  #modalPenawaran .form-control,#modalPenawaran .form-select{min-height:38px;}
 }
 
-/* ===== Invoice item: mobile card layout (<=768px) ===== */
-/* Desktop (>768px) tetap pakai tabel seperti semula, tidak diubah. */
+/* ===== Item Invoice & Penawaran: baris ringkas di mobile (<=768px) ===== */
+/* Desktop (>768px) tetap memakai tabel seperti semula, tidak diubah. */
 @media(max-width:768px){
   #modalInvoice .invoice-item-table-wrap{overflow-x:visible;}
   #modalInvoice #tblItemInvoice{min-width:0;width:100%;}
 
-  #tblItemInvoice thead{
+  /* Sembunyikan header kolom tabel (label sudah tidak diulang per-item) */
+  .invoice-items-table thead{
     position:absolute;width:1px;height:1px;overflow:hidden;
     clip:rect(0,0,0,0);white-space:nowrap;border:0;padding:0;margin:0;
   }
-  #tblItemInvoice, #tblItemInvoice tbody{display:block;width:100%;}
-  #tblItemInvoice tr{
+  .invoice-items-table, .invoice-items-table tbody{display:block;width:100%;}
+
+  .invoice-items-table tr{
     display:flex;flex-wrap:wrap;
-    background:var(--bs-body-bg);
+    column-gap:.4rem;row-gap:.3rem;
+    background:var(--bs-tertiary-bg);
     border:1px solid var(--bs-border-color);
-    border-radius:10px;
-    padding:.75rem;
-    margin-bottom:.75rem;
+    border-radius:8px;
+    padding:.5rem;
+    padding-right:2.25rem; /* ruang untuk tombol hapus */
+    margin-bottom:.4rem;
     position:relative;
-    row-gap:.65rem;
   }
-  #tblItemInvoice td{
-    display:block;border:none;padding:0;width:100%;
+  .invoice-items-table td{display:block;border:none;padding:0;}
+
+  /* Layanan & Harga: full width */
+  .invoice-items-table td.td-layanan,
+  .invoice-items-table td.td-harga{flex:1 1 100%;width:100%;}
+
+  /* Qty & Satuan: sejajar berdampingan */
+  .invoice-items-table td.td-qty,
+  .invoice-items-table td.td-satuan{
+    flex:1 1 calc(50% - .2rem);width:calc(50% - .2rem);min-width:0;
   }
-  #tblItemInvoice td:before{
-    content:attr(data-label);
-    display:block;
-    font-size:.7rem;font-weight:700;
-    text-transform:uppercase;letter-spacing:.03em;
-    color:var(--bs-secondary-color);
-    margin-bottom:.3rem;
+
+  /* Subtotal: baris kecil tepat di bawah Harga, bukan label besar */
+  .invoice-items-table td.td-subtotal{
+    flex:1 1 100%;width:100%;font-size:.78rem;color:var(--bs-secondary-color);
+    line-height:1.3;
   }
-  /* Qty & Satuan sejajar (side by side) selama muat, wrap otomatis jika sempit */
-  #tblItemInvoice td.td-qty,
-  #tblItemInvoice td.td-satuan{
-    width:calc(50% - .35rem);
-    flex:1 1 calc(50% - .35rem);
-    min-width:120px;
+  .invoice-items-table td.td-subtotal .item-subtotal-label{
+    display:inline;font-weight:600;margin-right:.25rem;
   }
-  #tblItemInvoice td.td-layanan,
-  #tblItemInvoice td.td-harga,
-  #tblItemInvoice td.td-subtotal{
-    width:100%;flex:1 1 100%;
+  .invoice-items-table td.td-subtotal .item-subtotal{
+    font-weight:700;color:var(--primary-accent);
   }
-  #tblItemInvoice td.td-subtotal .item-subtotal{
-    display:block;font-weight:700;font-size:1rem;color:var(--primary-accent);
+
+  /* Tombol hapus: ikon kecil, mengapung di pojok kanan atas item */
+  .invoice-items-table td.td-hapus{
+    position:absolute;top:.4rem;right:.4rem;width:auto;flex:0 0 auto;
   }
-  #tblItemInvoice td.td-hapus{
-    width:100%;flex:1 1 100%;
-    border-top:1px dashed var(--bs-border-color);
-    padding-top:.65rem;margin-top:.15rem;
+  .invoice-items-table .item-delete-btn{
+    width:26px;height:26px;padding:0;border-radius:6px;
+    display:inline-flex;align-items:center;justify-content:center;line-height:1;
   }
-  #tblItemInvoice .item-delete-btn{
-    width:100%;display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
+  .invoice-items-table .item-delete-btn i{font-size:.85rem;}
+
+  /* Field lebih ringkas: padding & tinggi dipangkas agar form tidak terlalu panjang */
+  .invoice-items-table .form-control,
+  .invoice-items-table .form-select{
+    width:100%;padding:.3rem .5rem;font-size:.82rem;min-height:34px;
   }
-  #tblItemInvoice .item-delete-text{display:inline;}
-  #tblItemInvoice .form-control,
-  #tblItemInvoice .form-select{width:100%;}
+  .invoice-items-table .item-desc-custom{margin-top:.3rem !important;}
 }
 
 .toast-container{z-index:2100;}
@@ -237,7 +254,7 @@ body{
 table.dataTable{font-size:.875rem;}
 .fs-7{font-size:.825rem;}
 .fs-8{font-size:.75rem;}
-.item-delete-text{display:none;}
+.item-subtotal-label{display:none;}
 
 /* Modals */
 .modal-content{border-radius:var(--card-radius);border:none;}
@@ -782,7 +799,7 @@ table.dataTable{font-size:.875rem;}
         <label class="form-label small mb-0">Item Layanan</label>
         <button type="button" class="btn btn-sm btn-outline-primary" onclick="addItemRow('penawaran')"><i class="bi bi-plus"></i> Tambah Item</button>
       </div>
-      <table class="table table-sm" id="tblItemPenawaran">
+      <table class="table table-sm invoice-items-table" id="tblItemPenawaran">
         <thead><tr><th>Layanan</th><th style="width:80px">Qty</th><th style="width:110px">Satuan</th><th style="width:130px">Harga</th><th style="width:130px">Subtotal</th><th></th></tr></thead>
         <tbody></tbody>
       </table>
@@ -813,7 +830,7 @@ table.dataTable{font-size:.875rem;}
         <button type="button" class="btn btn-sm btn-outline-primary" onclick="addItemRow('invoice')"><i class="bi bi-plus"></i> Tambah Item</button>
       </div>
       <div class="table-responsive invoice-item-table-wrap">
-      <table class="table table-sm" id="tblItemInvoice">
+      <table class="table table-sm invoice-items-table" id="tblItemInvoice">
         <thead><tr><th style="min-width:160px">Layanan</th><th style="min-width:90px">Qty</th><th style="min-width:120px">Satuan</th><th style="min-width:140px">Harga</th><th style="min-width:130px">Subtotal</th><th style="min-width:50px"></th></tr></thead>
         <tbody></tbody>
       </table>
@@ -1421,16 +1438,16 @@ function addItemRow(type, item){
   const selectedVal = item ? (isCustom ? '__custom__' : item.ServiceID) : null;
   const tr = document.createElement('tr');
   tr.innerHTML = `
-    <td data-label="Layanan" class="td-layanan">
+    <td class="td-layanan">
       <select class="form-select form-select-sm item-service">${serviceOptions(selectedVal)}</select>
       <input type="text" class="form-control form-control-sm item-desc-custom mt-1" placeholder="Nama layanan / item custom"
         value="${isCustom?item.Deskripsi:''}" style="display:${isCustom?'block':'none'}">
     </td>
-    <td data-label="Qty" class="td-qty"><input type="number" class="form-control form-control-sm item-qty" value="${item?item.Qty:1}" min="1"></td>
-    <td data-label="Satuan" class="td-satuan"><select class="form-select form-select-sm item-satuan">${satuanOptions(item?item.Satuan:'')}</select></td>
-    <td data-label="Harga" class="td-harga"><input type="number" class="form-control form-control-sm item-harga" value="${item?item.Harga:0}"></td>
-    <td data-label="Subtotal" class="td-subtotal"><span class="item-subtotal">0</span></td>
-    <td class="td-hapus"><button type="button" class="btn btn-sm btn-outline-danger item-delete-btn" onclick="this.closest('tr').remove(); recalcTotals('${type}')"><i class="bi bi-x"></i><span class="item-delete-text">Hapus</span></button></td>
+    <td class="td-qty"><input type="number" class="form-control form-control-sm item-qty" placeholder="Qty" value="${item?item.Qty:1}" min="1"></td>
+    <td class="td-satuan"><select class="form-select form-select-sm item-satuan">${satuanOptions(item?item.Satuan:'')}</select></td>
+    <td class="td-harga"><input type="number" class="form-control form-control-sm item-harga" placeholder="Harga (Rp)" value="${item?item.Harga:0}"></td>
+    <td class="td-subtotal"><span class="item-subtotal-label">Subtotal:</span><span class="item-subtotal">0</span></td>
+    <td class="td-hapus"><button type="button" class="btn btn-sm btn-outline-danger item-delete-btn" onclick="this.closest('tr').remove(); recalcTotals('${type}')"><i class="bi bi-x"></i></button></td>
   `;
   tbody.appendChild(tr);
   const selService = tr.querySelector('.item-service');
