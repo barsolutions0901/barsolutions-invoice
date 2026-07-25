@@ -130,6 +130,17 @@ body{
   #loginScreen .login-card{padding:1.75rem 1.25rem;border-radius:14px;}
   .d-flex.justify-content-between.align-items-center.mb-3{flex-wrap:wrap;gap:.5rem;}
   .topbar .d-flex.align-items-center.gap-2{gap:.35rem !important;}
+
+  /* Modal Tambah/Edit Invoice: hampir full-screen dan lebih nyaman di layar kecil */
+  #modalInvoice .modal-dialog{margin:0;max-width:100%;width:100%;height:100dvh;height:100vh;}
+  #modalInvoice .modal-content{height:100%;border-radius:0;display:flex;flex-direction:column;}
+  #modalInvoice .modal-body{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  #modalInvoice .modal-header,#modalInvoice .modal-footer{flex:0 0 auto;}
+  #modalInvoice .modal-footer{gap:.5rem;}
+  #modalInvoice .modal-footer .btn{flex:1 1 50%;justify-content:center;display:inline-flex;align-items:center;gap:.35rem;min-height:44px;}
+  #modalInvoice .invoice-item-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px;}
+  #modalInvoice #tblItemInvoice{min-width:640px;}
+  #modalInvoice .form-control,#modalInvoice .form-select{min-height:40px;}
 }
 
 .toast-container{z-index:2100;}
@@ -180,9 +191,44 @@ table.dataTable{font-size:.875rem;}
 .timeline-list li:before{content:'';position:absolute;left:-6px;top:.4rem;width:10px;height:10px;border-radius:50%;background:var(--primary-accent);}
 .timeline-list .tl-time{color:var(--bs-secondary-color);font-size:.75rem;display:block;}
 .invoice-action-bar{display:flex;flex-wrap:wrap;gap:.4rem;}
+.invoice-row-actions{display:flex;flex-wrap:nowrap;gap:.35rem;align-items:center;}
+.invoice-row-actions .dropdown-menu{min-width:200px;}
 .share-link-box{display:flex;gap:.5rem;align-items:center;background:var(--bs-tertiary-bg);border-radius:8px;padding:.5rem .75rem;font-size:.8rem;word-break:break-all;}
 #loginScreen{position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;padding:1rem;background:linear-gradient(135deg,var(--primary-accent,#0d6efd) 0%,#111827 100%);}
-#loginScreen .login-card{width:100%;max-width:380px;background:var(--bs-body-bg);border-radius:18px;padding:2.5rem 2rem;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+#loginScreen .login-card{
+  width:100%;max-width:380px;
+  background:var(--bs-body-bg);
+  border:1px solid var(--bs-border-color);
+  border-radius:20px;padding:2.5rem 2rem;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+  color:var(--bs-body-color);
+}
+#loginScreen .login-card .form-label{color:var(--bs-body-color);}
+#loginScreen .login-card .text-muted{color:var(--bs-secondary-color) !important;}
+#loginScreen .login-card .form-control{
+  background:var(--bs-body-bg);
+  border:1px solid var(--bs-border-color);
+  color:var(--bs-body-color);
+}
+#loginScreen .login-card .form-control:focus{
+  border-color:var(--primary-accent);
+  box-shadow:0 0 0 .2rem rgba(99,102,241,.15);
+}
+#loginScreen .login-card .input-group .btn-outline-secondary{
+  border:1px solid var(--bs-border-color);color:var(--bs-body-color);background:var(--bs-body-bg);
+}
+#loginScreen .login-card .form-check-label{color:var(--bs-body-color);}
+#loginScreen .login-card a{color:var(--primary-accent);text-decoration:none;font-weight:600;}
+#loginScreen .login-card a:hover{text-decoration:underline;}
+#loginScreen .login-card #btnLoginSubmit{
+  padding:.65rem 1rem;font-size:.95rem;letter-spacing:.01em;
+  box-shadow:0 8px 20px rgba(99,102,241,.35);
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+#loginScreen .login-card #btnLoginSubmit:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 24px rgba(99,102,241,.45);
+}
 #loginScreen .login-icon-box{width:64px;height:64px;border-radius:16px;background:var(--bs-primary);color:#fff;font-size:1.8rem;position:relative;}
 #loginScreen .login-icon-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:16px;}
 @media print{
@@ -230,39 +276,6 @@ table.dataTable{font-size:.875rem;}
     <div id="loginApiUrlBox" class="mt-2 d-none">
       <input type="url" class="form-control form-control-sm mb-2" id="inpLoginApiUrl" placeholder="https://script.google.com/macros/s/.../exec">
       <button type="button" class="btn btn-sm btn-outline-primary w-100" id="btnSaveLoginApiUrl">Simpan URL API</button>
-    </div>
-    <div class="text-center small mt-2">
-      Belum punya akun? <a href="#" id="linkTampilkanDaftar">Buat Akun</a>
-    </div>
-  </div>
-  <div class="login-card text-center d-none" id="registerCard">
-    <div class="mb-3 d-inline-flex align-items-center justify-content-center login-icon-box">
-      <i class="bi bi-person-plus"></i>
-    </div>
-    <h5 class="fw-bold mb-1">Buat Akun Baru</h5>
-    <div class="text-muted small mb-4">Daftar untuk mendapatkan akses aplikasi</div>
-    <form id="formRegister" class="text-start">
-      <div class="mb-3">
-        <label class="form-label small">Nama Lengkap</label>
-        <input type="text" class="form-control" id="inpRegisterNama" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label small">Username / Email</label>
-        <input type="text" class="form-control" id="inpRegisterUsername" required autocomplete="username">
-      </div>
-      <div class="mb-3">
-        <label class="form-label small">Kata Sandi</label>
-        <input type="password" class="form-control" id="inpRegisterPassword" required autocomplete="new-password">
-      </div>
-      <div class="mb-3">
-        <label class="form-label small">Konfirmasi Kata Sandi</label>
-        <input type="password" class="form-control" id="inpRegisterPasswordConfirm" required autocomplete="new-password">
-      </div>
-      <div id="registerErrorBox" class="alert alert-danger py-2 small d-none"></div>
-      <button type="submit" class="btn btn-primary w-100 rounded-3" id="btnRegisterSubmit"><i class="bi bi-person-plus"></i> Daftar</button>
-    </form>
-    <div class="text-center small mt-3">
-      Sudah punya akun? <a href="#" id="linkTampilkanLogin">Masuk</a>
     </div>
   </div>
 </div>
@@ -738,10 +751,12 @@ table.dataTable{font-size:.875rem;}
         <label class="form-label small mb-0">Item Layanan</label>
         <button type="button" class="btn btn-sm btn-outline-primary" onclick="addItemRow('invoice')"><i class="bi bi-plus"></i> Tambah Item</button>
       </div>
+      <div class="table-responsive invoice-item-table-wrap">
       <table class="table table-sm" id="tblItemInvoice">
-        <thead><tr><th>Layanan</th><th style="width:80px">Qty</th><th style="width:110px">Satuan</th><th style="width:130px">Harga</th><th style="width:130px">Subtotal</th><th></th></tr></thead>
+        <thead><tr><th style="min-width:160px">Layanan</th><th style="min-width:90px">Qty</th><th style="min-width:120px">Satuan</th><th style="min-width:140px">Harga</th><th style="min-width:130px">Subtotal</th><th style="min-width:50px"></th></tr></thead>
         <tbody></tbody>
       </table>
+      </div>
       <div class="row g-2 mb-2">
         <div class="col-md-4">
           <label class="form-label small">Diskon</label>
@@ -832,7 +847,7 @@ table.dataTable{font-size:.875rem;}
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 <script>
-const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbxCTIfhTwGItRo5f0bQv1LIgI58mvhEgMrYClhsD64b9k_AKFgO_tWEfY08_4ArL_U/exec';
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbxzqEybSCWSYEBWYVpdfHhB27_OPoQCRZut5T71qENAWyDv5BLzTSGmXGd1wh8RVSBQ/exec';
 function getApiUrl(){ return localStorage.getItem('api_url') || DEFAULT_API_URL; }
 
 let SETTINGS = {};
@@ -975,42 +990,6 @@ document.getElementById('btnTogglePassword').addEventListener('click', ()=>{
 document.getElementById('linkKoneksiApi').addEventListener('click', (e)=>{
   e.preventDefault();
   document.getElementById('loginApiUrlBox').classList.toggle('d-none');
-});
-
-document.getElementById('linkTampilkanDaftar').addEventListener('click', (e)=>{
-  e.preventDefault();
-  document.getElementById('loginScreen').querySelector('.login-card:not(#registerCard)').classList.add('d-none');
-  document.getElementById('registerCard').classList.remove('d-none');
-});
-
-document.getElementById('linkTampilkanLogin').addEventListener('click', (e)=>{
-  e.preventDefault();
-  document.getElementById('registerCard').classList.add('d-none');
-  document.getElementById('loginScreen').querySelector('.login-card:not(#registerCard)').classList.remove('d-none');
-});
-
-document.getElementById('formRegister').addEventListener('submit', async e=>{
-  e.preventDefault();
-  document.getElementById('registerErrorBox').classList.add('d-none');
-  const nama = document.getElementById('inpRegisterNama').value.trim();
-  const username = document.getElementById('inpRegisterUsername').value.trim();
-  const password = document.getElementById('inpRegisterPassword').value;
-  const confirm = document.getElementById('inpRegisterPasswordConfirm').value;
-  if(password !== confirm){
-    document.getElementById('registerErrorBox').textContent = 'Konfirmasi kata sandi tidak sama';
-    document.getElementById('registerErrorBox').classList.remove('d-none');
-    return;
-  }
-  try{
-    await api('auth','register',{data:{nama, username, password}});
-    toast('success','Akun berhasil dibuat, silakan masuk');
-    document.getElementById('formRegister').reset();
-    document.getElementById('linkTampilkanLogin').click();
-    document.getElementById('inpLoginUsername').value = username;
-  }catch(err){
-    document.getElementById('registerErrorBox').textContent = err.message || 'Gagal membuat akun';
-    document.getElementById('registerErrorBox').classList.remove('d-none');
-  }
 });
 
 document.getElementById('btnSaveLoginApiUrl').addEventListener('click', ()=>{
@@ -1464,12 +1443,15 @@ function collectItems(type){
     const sel = tr.querySelector('.item-service');
     const isCustom = sel.value === '__custom__';
     const inpCustom = tr.querySelector('.item-desc-custom');
+    const qty = Number(tr.querySelector('.item-qty').value)||0;
+    const harga = Number(tr.querySelector('.item-harga').value)||0;
     items.push({
       ServiceID: isCustom ? '' : sel.value,
       Deskripsi: isCustom ? (inpCustom.value || 'Item Custom') : (sel.selectedOptions[0] ? sel.selectedOptions[0].textContent : ''),
-      Qty: Number(tr.querySelector('.item-qty').value)||0,
+      Qty: qty,
       Satuan: tr.querySelector('.item-satuan').value || '',
-      Harga: Number(tr.querySelector('.item-harga').value)||0
+      Harga: harga,
+      Subtotal: qty*harga
     });
   });
   return items;
@@ -1614,16 +1596,22 @@ async function loadInvoices(){
       <td>${i.Nomor}</td><td>${i.NamaKlien}</td><td>${formatDate(i.Tanggal)}</td><td>${formatDate(i.JatuhTempo)}</td>
       <td>${formatCurrency(i.Total)}</td><td>${formatCurrency(i.DP)}</td><td>${formatCurrency(i.Sisa)}</td><td>${statusBadge(i.Status)}</td>
       <td>
-        <div class="invoice-action-bar">
-        <button class="btn btn-sm btn-outline-secondary" onclick="viewInvoicePdf('${i.ID}')" title="Pratinjau"><i class="bi bi-file-earmark-pdf"></i></button>
+        <div class="invoice-row-actions">
+        <button class="btn btn-sm btn-outline-secondary" onclick="viewInvoicePdf('${i.ID}')" title="Lihat"><i class="bi bi-eye"></i></button>
         <button class="btn btn-sm btn-outline-primary" onclick="editInvoice('${i.ID}')" title="Edit"><i class="bi bi-pencil"></i></button>
-        <button class="btn btn-sm btn-outline-dark" onclick="printInvoiceA4('${i.ID}')" title="Cetak"><i class="bi bi-printer"></i></button>
-        <button class="btn btn-sm btn-outline-success" onclick="downloadInvoicePdf('${i.ID}')" title="Download PDF"><i class="bi bi-download"></i></button>
-        <button class="btn btn-sm btn-outline-info" onclick="sendInvoiceEmail('${i.ID}')" title="Kirim Email"><i class="bi bi-envelope"></i></button>
-        <button class="btn btn-sm" style="color:#25D366;border:1px solid #25D366" onclick="sendInvoiceWhatsapp('${i.ID}')" title="Kirim WhatsApp"><i class="bi bi-whatsapp"></i></button>
-        <button class="btn btn-sm btn-outline-secondary" onclick="shareInvoice('${i.ID}')" title="Bagikan Invoice"><i class="bi bi-share"></i></button>
-        <button class="btn btn-sm btn-outline-secondary" onclick="duplicateInvoice('${i.ID}')" title="Duplikat Invoice"><i class="bi bi-copy"></i></button>
-        <button class="btn btn-sm btn-outline-danger" onclick="deleteInvoice('${i.ID}')" title="Hapus"><i class="bi bi-trash"></i></button>
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false" title="Lainnya"><i class="bi bi-three-dots-vertical"></i></button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#" onclick="printInvoiceA4('${i.ID}');return false;"><i class="bi bi-printer me-2"></i>Cetak</a></li>
+            <li><a class="dropdown-item" href="#" onclick="downloadInvoicePdf('${i.ID}');return false;"><i class="bi bi-download me-2"></i>Download PDF</a></li>
+            <li><a class="dropdown-item" href="#" onclick="sendInvoiceEmail('${i.ID}');return false;"><i class="bi bi-envelope me-2"></i>Kirim Email</a></li>
+            <li><a class="dropdown-item" href="#" onclick="sendInvoiceWhatsapp('${i.ID}');return false;"><i class="bi bi-whatsapp me-2"></i>Kirim WhatsApp</a></li>
+            <li><a class="dropdown-item" href="#" onclick="shareInvoice('${i.ID}');return false;"><i class="bi bi-qr-code me-2"></i>QR Code / Salin Link</a></li>
+            <li><a class="dropdown-item" href="#" onclick="duplicateInvoice('${i.ID}');return false;"><i class="bi bi-copy me-2"></i>Duplikasi</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#" onclick="deleteInvoice('${i.ID}');return false;"><i class="bi bi-trash me-2"></i>Hapus</a></li>
+          </ul>
+        </div>
         </div>
       </td>
     </tr>`).join('');
@@ -1673,6 +1661,28 @@ document.getElementById('formInvoice').addEventListener('submit', async e=>{
   const id = data.ID; delete data.ID;
   data.items = collectItems('invoice');
   if(!data.items.length){ toast('error','Tambahkan minimal 1 item'); return; }
+  // Hitung ulang Subtotal, Diskon, Pajak, Total, Sisa dari input yang sedang aktif di form
+  // agar nilai yang tersimpan ke Google Sheet selalu konsisten dan tidak hilang saat edit.
+  const subtotal = data.items.reduce((s,it)=> s + (Number(it.Qty)||0)*(Number(it.Harga)||0), 0);
+  const diskonNilai = Number(data.DiskonNilai)||0;
+  const diskonTipe = data.DiskonTipe || 'persen';
+  const pajakPersen = Number(data.PajakPersen)||0;
+  let diskon = diskonTipe==='nominal' ? diskonNilai : subtotal*(diskonNilai/100);
+  if(diskon > subtotal) diskon = subtotal;
+  const dpp = subtotal - diskon;
+  const pajak = dpp*(pajakPersen/100);
+  const total = dpp + pajak;
+  const dpVal = Number(data.DP)||0;
+  data.Subtotal = subtotal;
+  data.DiskonNilai = diskonNilai;
+  data.DiskonPersen = diskonTipe==='persen' ? diskonNilai : 0;
+  data.DiskonTipe = diskonTipe;
+  data.Diskon = diskon;
+  data.PajakPersen = pajakPersen;
+  data.Pajak = pajak;
+  data.Total = total;
+  data.DP = dpVal;
+  data.Sisa = Math.max(total - dpVal, 0);
   await api('invoices', id ? 'update':'create', {id, data});
   toast('success','Invoice tersimpan');
   bootstrap.Modal.getInstance(document.getElementById('modalInvoice')).hide();
