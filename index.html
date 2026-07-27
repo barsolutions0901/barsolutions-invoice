@@ -254,6 +254,35 @@ body{
 .upload-box img{max-height:110px;max-width:100%;object-fit:contain;}
 .upload-box-item{height:100%;}
 .brand-color-dot{width:20px;height:20px;border-radius:50%;display:inline-block;border:1px solid #ccc;}
+
+/* Profil Saya */
+.avatar-upload-box{
+  width:100px;height:100px;border-radius:50%;
+  border:2px dashed var(--bs-border-color);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  margin:0 auto;transition:.2s;background:var(--bs-tertiary-bg);flex-shrink:0;
+}
+.avatar-upload-box:hover{border-color:var(--primary-accent);}
+.avatar-upload-box img{width:100%;height:100%;object-fit:cover;}
+.avatar-upload-box.avatar-sm{width:56px;height:56px;}
+.avatar-upload-box i{font-size:1.6rem;color:var(--bs-secondary-color);}
+.signature-upload-box{
+  border:2px dashed var(--bs-border-color);border-radius:var(--card-radius);
+  padding:.75rem;text-align:center;cursor:pointer;transition:.2s;
+  min-height:100px;display:flex;align-items:center;justify-content:center;background:var(--bs-tertiary-bg);
+}
+.signature-upload-box:hover{border-color:var(--primary-accent);}
+.signature-upload-box img{max-height:80px;max-width:100%;object-fit:contain;}
+
+.sidebar-user-box{
+  margin:.5rem .75rem 0 .75rem;padding:.65rem .75rem;border-radius:10px;
+  background:var(--bs-tertiary-bg);border:1px solid var(--bs-border-color);
+  display:flex;align-items:center;gap:.6rem;cursor:pointer;transition:.2s;text-decoration:none;
+}
+.sidebar-user-box:hover{border-color:var(--primary-accent);}
+.sidebar-user-box .avatar-upload-box{margin:0;}
+.sidebar-user-box .su-name{font-weight:700;font-size:.85rem;color:var(--bs-body-color);line-height:1.2;}
+.sidebar-user-box .su-role{font-size:.72rem;color:var(--bs-secondary-color);}
 #invoicePrintArea{background:#fff;color:#111;padding:20mm 15mm;max-width:210mm;margin:0 auto;box-sizing:border-box;}
 @media(max-width:576.98px){
   #invoicePrintArea{padding:6mm;max-width:100%;font-size:.8rem;}
@@ -422,6 +451,13 @@ table.dataTable{font-size:.875rem;}
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 <nav class="sidebar" id="sidebar">
   <div class="brand"><span class="brand-icon-box" id="brandIconBox"><i class="bi bi-receipt-cutoff"></i><img id="sidebarLogo" src="" style="display:none;"></span> <span id="brandName" class="text-truncate">BARSOLUTION</span></div>
+  <a class="sidebar-user-box" href="#profilsaya" id="sidebarUserBox">
+    <span class="avatar-upload-box avatar-sm" style="cursor:default;"><img id="sidebarUserFoto" style="display:none;"><i class="bi bi-person-fill" id="sidebarUserIcon"></i></span>
+    <span class="text-truncate">
+      <div class="su-name text-truncate" id="sidebarUserName">Pengguna</div>
+      <div class="su-role" id="sidebarUserRole">-</div>
+    </span>
+  </a>
   <small class="nav-section-label text-muted text-uppercase fw-bold fs-8 d-block mt-3">Menu Utama</small>
   <div class="nav flex-column pt-2" id="navMenu">
     <a class="nav-link" href="#dashboard" data-page="dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
@@ -433,6 +469,10 @@ table.dataTable{font-size:.875rem;}
     <a class="nav-link" href="#laporan" data-page="laporan"><i class="bi bi-bar-chart-line-fill"></i> Laporan</a>
     <a class="nav-link" href="#pengaturan" data-page="pengaturan"><i class="bi bi-gear-fill"></i> Pengaturan</a>
     <a class="nav-link d-none" href="#pengguna" data-page="pengguna" id="navPengguna"><i class="bi bi-person-badge-fill"></i> Manajemen Pengguna</a>
+  </div>
+  <small class="nav-section-label text-muted text-uppercase fw-bold fs-8 d-block mt-3">Akun</small>
+  <div class="nav flex-column pt-2 pb-3" id="navMenuAkun">
+    <a class="nav-link" href="#profilsaya" data-page="profilsaya"><i class="bi bi-person-circle"></i> Profil Saya</a>
   </div>
 </nav>
 
@@ -618,6 +658,72 @@ table.dataTable{font-size:.875rem;}
         <thead><tr><th>Nama</th><th>Username</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead>
         <tbody></tbody>
       </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFIL SAYA -->
+  <div class="page" id="page-profilsaya">
+    <div class="row g-3">
+      <div class="col-lg-4">
+        <div class="card p-3 text-center">
+          <div class="avatar-upload-box" onclick="document.getElementById('inpFotoProfil').click()">
+            <img id="prevFotoProfil" style="display:none;">
+            <i class="bi bi-person-fill" id="txtFotoProfil"></i>
+          </div>
+          <input type="file" id="inpFotoProfil" class="d-none" accept="image/*" onchange="handleUserAssetUpload('foto',this,'profil')">
+          <div class="small text-muted mt-2">Klik foto untuk mengganti</div>
+          <h6 class="fw-bold mb-0 mt-3" id="profilNamaPreview">-</h6>
+          <div class="small text-muted" id="profilJabatanPreview">-</div>
+          <span class="badge bg-secondary align-self-center mt-2" id="profilRolePreview">-</span>
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <form id="formProfilSaya">
+          <div class="card p-3 mb-3">
+            <h6 class="fw-bold mb-3">Data Diri</h6>
+            <div class="row g-2">
+              <div class="col-md-6"><label class="form-label small">Nama</label><input class="form-control" name="Nama" id="inpProfilNama" required></div>
+              <div class="col-md-6"><label class="form-label small">Jabatan</label><input class="form-control" name="Jabatan" id="inpProfilJabatan" placeholder="mis. Staf Keuangan"></div>
+              <div class="col-md-6"><label class="form-label small">Email</label><input class="form-control" type="email" name="Email" id="inpProfilEmail"></div>
+              <div class="col-md-6"><label class="form-label small">No. HP</label><input class="form-control" name="NoHp" id="inpProfilNoHp" placeholder="08xxxxxxxxxx"></div>
+              <div class="col-md-6"><label class="form-label small">Username</label><input class="form-control" id="inpProfilUsername" disabled></div>
+              <div class="col-md-6"><label class="form-label small">Status Akun</label><input class="form-control" id="inpProfilStatus" disabled></div>
+            </div>
+          </div>
+          <div class="card p-3 mb-3">
+            <h6 class="fw-bold mb-3">Ubah Kata Sandi</h6>
+            <div class="row g-2">
+              <div class="col-md-6">
+                <label class="form-label small">Kata Sandi Baru</label>
+                <input class="form-control" type="password" name="Password" id="inpProfilPassword" autocomplete="new-password">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small">Konfirmasi Kata Sandi Baru</label>
+                <input class="form-control" type="password" id="inpProfilPasswordConfirm" autocomplete="new-password">
+              </div>
+            </div>
+            <div class="form-text small">Kosongkan kedua kolom di atas jika tidak ingin mengganti kata sandi.</div>
+          </div>
+          <div class="card p-3 mb-3">
+            <h6 class="fw-bold mb-3">Tanda Tangan</h6>
+            <div class="row g-2">
+              <div class="col-md-5">
+                <div class="signature-upload-box" onclick="document.getElementById('inpTtdProfil').click()">
+                  <img id="prevTtdProfil" style="display:none;">
+                  <div id="txtTtdProfil"><i class="bi bi-cloud-upload fs-3"></i><div class="small">Klik untuk unggah tanda tangan</div></div>
+                </div>
+                <input type="file" id="inpTtdProfil" class="d-none" accept="image/*" onchange="handleUserAssetUpload('ttd',this,'profil')">
+              </div>
+              <div class="col-md-7 d-flex align-items-center">
+                <div class="small text-muted">Unggah gambar tanda tangan Anda (format PNG/JPG, latar transparan lebih baik). Tanda tangan ini adalah milik Anda sendiri, terpisah dari tanda tangan perusahaan pada menu Pengaturan.</div>
+              </div>
+            </div>
+          </div>
+          <input type="hidden" name="Foto" id="inpProfilFotoHidden">
+          <input type="hidden" name="TandaTangan" id="inpProfilTtdHidden">
+          <button type="submit" class="btn btn-primary rounded-3"><i class="bi bi-save"></i> Simpan Perubahan</button>
+        </form>
       </div>
     </div>
   </div>
@@ -901,7 +1007,20 @@ table.dataTable{font-size:.875rem;}
     <div class="modal-header"><h5 class="modal-title">Form Pengguna</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
       <input type="hidden" name="ID">
+      <div class="text-center mb-3">
+        <div class="avatar-upload-box" onclick="document.getElementById('inpFotoPengguna').click()">
+          <img id="prevFotoPengguna" style="display:none;">
+          <i class="bi bi-person-fill" id="txtFotoPengguna"></i>
+        </div>
+        <input type="file" id="inpFotoPengguna" class="d-none" accept="image/*" onchange="handleUserAssetUpload('foto',this,'pengguna')">
+        <input type="hidden" name="Foto" id="inpFotoPenggunaHidden">
+      </div>
       <div class="mb-2"><label class="form-label small">Nama</label><input class="form-control" name="Nama" required></div>
+      <div class="row">
+        <div class="col-6 mb-2"><label class="form-label small">Jabatan</label><input class="form-control" name="Jabatan" placeholder="mis. Staf Keuangan"></div>
+        <div class="col-6 mb-2"><label class="form-label small">No. HP</label><input class="form-control" name="NoHp" placeholder="08xxxxxxxxxx"></div>
+      </div>
+      <div class="mb-2"><label class="form-label small">Email</label><input class="form-control" type="email" name="Email"></div>
       <div class="mb-2"><label class="form-label small">Username</label><input class="form-control" name="Username" required autocomplete="off"></div>
       <div class="mb-2">
         <label class="form-label small">Kata Sandi</label>
@@ -923,6 +1042,15 @@ table.dataTable{font-size:.875rem;}
             <option value="Nonaktif">Nonaktif</option>
           </select>
         </div>
+      </div>
+      <div class="mb-2">
+        <label class="form-label small">Tanda Tangan</label>
+        <div class="signature-upload-box" onclick="document.getElementById('inpTtdPengguna').click()">
+          <img id="prevTtdPengguna" style="display:none;">
+          <div id="txtTtdPengguna"><i class="bi bi-cloud-upload fs-3"></i><div class="small">Klik untuk unggah tanda tangan</div></div>
+        </div>
+        <input type="file" id="inpTtdPengguna" class="d-none" accept="image/*" onchange="handleUserAssetUpload('ttd',this,'pengguna')">
+        <input type="hidden" name="TandaTangan" id="inpTtdPenggunaHidden">
       </div>
     </div>
     <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Batal</button><button class="btn btn-primary rounded-3" type="submit">Simpan</button></div>
@@ -1119,7 +1247,7 @@ table.dataTable{font-size:.875rem;}
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 <script>
-const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbxiih7wmm0lB_9g2FACR4NksFre8vS02RrTTIX8CrJ-PnNrvu0oNnMpmWYrcfrg08xd/exec';
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbxB6F7jFR8NSbmCGRZ5bOOI8H0LLednsDv-1A3KnkEmjQ5KDG5baymvbbBXVQq81GK-/exec';
 function getApiUrl(){ return localStorage.getItem('api_url') || DEFAULT_API_URL; }
 
 let SETTINGS = {};
@@ -1127,6 +1255,65 @@ let CLIENTS = [];
 let SERVICES = [];
 let INVOICES_CACHE = [];
 let PAYMENTS_CACHE = [];
+let QUOTATIONS_CACHE = [];
+
+/* ================= OWNER TRACKING (Created By / Updated By / Converted By / Payment By) =================
+   Menggunakan sistem login yang sudah ada (getCurrentUser()) untuk otomatis mencatat
+   siapa yang membuat/mengubah/mengonversi/mencatat pembayaran pada setiap Penawaran,
+   Invoice, dan Pembayaran. */
+function userStamp(){
+  const u = getCurrentUser();
+  return {
+    id: (u && u.ID) || '',
+    nama: (u && (u.Nama || u.Username)) || 'Tidak diketahui',
+    jabatan: (u && u.Jabatan) || '',
+    ttd: (u && u.TandaTangan) || ''
+  };
+}
+
+/* Mengambil identitas (nama, jabatan, tanda tangan) yang harus tampil pada dokumen:
+   diprioritaskan dari data pembuat dokumen (CreatedBy...) yang sudah "dibekukan" saat
+   dokumen dibuat, dengan fallback ke identitas perusahaan/aset company-wide jika dokumen
+   lama belum memiliki data pembuat. */
+function getDocumentSignerInfo(doc, s, a){
+  doc = doc || {}; s = s || {}; a = a || {};
+  return {
+    nama: doc.CreatedByNama || s.nama_perusahaan || '',
+    jabatan: doc.CreatedByJabatan || '',
+    ttd: doc.CreatedByTtd || a.ttd_file_id || ''
+  };
+}
+
+/* Blok tanda tangan yang dipakai bersama oleh PDF, Print, dan Public Page (Invoice & Penawaran),
+   otomatis mengikuti nama, jabatan, dan tanda tangan pengguna yang membuat dokumen. */
+/* Menambahkan tanda tangan penutup (nama + jabatan pembuat dokumen) secara otomatis ke
+   teks Email/WhatsApp, kecuali template sudah memakai token {pembuat} sendiri (agar tidak dobel). */
+function appendSignerFooter(text, signer, rawTemplate){
+  if(!signer || !signer.nama) return text;
+  if(rawTemplate && rawTemplate.indexOf('{pembuat}') !== -1) return text;
+  return text + '\n\nHormat kami,\n' + signer.nama + (signer.jabatan ? '\n'+signer.jabatan : '');
+}
+
+function renderSignatureBlock(doc, s, a){
+  const signer = getDocumentSignerInfo(doc, s, a);
+  return `
+        ${a && a.stempel_file_id ? `<img src="${a.stempel_file_id}" style="height:65px;max-width:130px;object-fit:contain;position:relative;z-index:2;">` : ''}
+        ${signer.ttd ? `<img src="${signer.ttd}" style="height:100px;max-width:200px;object-fit:contain;margin-left:-18px;position:relative;z-index:1;">` : ''}
+        <div class="mt-1">Hormat kami,<br><b>${signer.nama}</b>${signer.jabatan ? `<br><span class="small text-muted">${signer.jabatan}</span>` : ''}</div>`;
+}
+
+function showOwnerHistory(entity, data){
+  if(!data) return;
+  const rows = [];
+  if(data.CreatedByNama) rows.push(`<div class="mb-1"><i class="bi bi-plus-circle me-1"></i><b>Dibuat oleh:</b> ${data.CreatedByNama}</div>`);
+  if(data.UpdatedByNama) rows.push(`<div class="mb-1"><i class="bi bi-pencil me-1"></i><b>Terakhir diubah oleh:</b> ${data.UpdatedByNama}</div>`);
+  if(entity==='invoice' && data.ConvertedByNama) rows.push(`<div class="mb-1"><i class="bi bi-arrow-right-circle me-1"></i><b>Dikonversi dari penawaran oleh:</b> ${data.ConvertedByNama}</div>`);
+  if(entity==='payment' && data.PaymentByNama) rows.push(`<div class="mb-1"><i class="bi bi-credit-card me-1"></i><b>Dicatat oleh:</b> ${data.PaymentByNama}</div>`);
+  if(!rows.length) rows.push('<div class="text-muted small">Belum ada data riwayat pengguna untuk data ini.</div>');
+  Swal.fire({title:'Riwayat Pengguna', html: rows.join(''), icon:'info', confirmButtonText:'Tutup'});
+}
+
+function findCacheById(cache, id){ return cache.find(x=>String(x.ID)===String(id)); }
 let DT = {};
 let CURRENT_PDF_INVOICE_ID = null;
 const INVOICE_A4_WRAPPER_STYLE = 'background:#fff;color:#111;padding:20mm 15mm;max-width:210mm;margin:0 auto;box-sizing:border-box;';
@@ -1200,6 +1387,18 @@ function isAdmin(){
 }
 function applyRoleUI(){
   document.getElementById('navPengguna').classList.toggle('d-none', !isAdmin());
+  renderSidebarUserBox();
+}
+
+function renderSidebarUserBox(){
+  const u = getCurrentUser();
+  if(!u) return;
+  document.getElementById('sidebarUserName').textContent = u.Nama || u.Username || 'Pengguna';
+  document.getElementById('sidebarUserRole').textContent = (u.Jabatan ? u.Jabatan + ' \u00b7 ' : '') + (u.Role || '-');
+  const img = document.getElementById('sidebarUserFoto');
+  const icon = document.getElementById('sidebarUserIcon');
+  if(u.Foto){ img.src = u.Foto; img.style.display='block'; icon.style.display='none'; }
+  else { img.style.display='none'; icon.style.display='block'; }
 }
 
 function showLoginScreen(){
@@ -1378,9 +1577,7 @@ function buildPublicInvoiceHtml(data){
         ${a.qris_file_id ? `<div class="mt-2"><b>QRIS:</b><br><img src="${a.qris_file_id}" style="height:120px;"></div>` : ''}
       </div>
       <div class="col-6 text-end">
-        ${a.stempel_file_id ? `<img src="${a.stempel_file_id}" style="height:65px;max-width:130px;object-fit:contain;position:relative;z-index:2;">` : ''}
-        ${a.ttd_file_id ? `<img src="${a.ttd_file_id}" style="height:100px;max-width:200px;object-fit:contain;margin-left:-18px;position:relative;z-index:1;">` : ''}
-        <div class="mt-1">Hormat kami,<br>${s.nama_perusahaan||''}</div>
+        ${renderSignatureBlock(inv, s, a)}
       </div>
     </div>
     ${inv.Catatan ? `<div class="mt-3 small text-muted">Catatan: ${inv.Catatan}</div>` : ''}
@@ -1420,7 +1617,7 @@ async function showPublicInvoice(nomor){
 }
 
 /* ================= ROUTER ================= */
-const pageTitles = {dashboard:'Dashboard',klien:'Klien',layanan:'Layanan',penawaran:'Penawaran',invoice:'Invoice',pembayaran:'Pembayaran',laporan:'Laporan',pengaturan:'Pengaturan',pengguna:'Manajemen Pengguna'};
+const pageTitles = {dashboard:'Dashboard',klien:'Klien',layanan:'Layanan',penawaran:'Penawaran',invoice:'Invoice',pembayaran:'Pembayaran',laporan:'Laporan',pengaturan:'Pengaturan',pengguna:'Manajemen Pengguna',profilsaya:'Profil Saya'};
 
 function router(){
   const publicNomor = getPublicInvoiceNomorFromUrl();
@@ -1453,6 +1650,7 @@ function loadPage(page){
   if(page==='laporan') loadReport();
   if(page==='pengaturan') loadSettingsForm();
   if(page==='pengguna') loadUsers();
+  if(page==='profilsaya') loadProfilSaya();
 }
 
 document.getElementById('btnToggleSidebar').addEventListener('click', ()=>{
@@ -1493,7 +1691,7 @@ async function loadDashboard(){
   const [quotationsAll, invoicesAll, paymentsAll] = await Promise.all([
     api('quotations','list'), api('invoices','list'), api('payments','list')
   ]);
-  INVOICES_CACHE = invoicesAll; PAYMENTS_CACHE = paymentsAll;
+  INVOICES_CACHE = invoicesAll; PAYMENTS_CACHE = paymentsAll; QUOTATIONS_CACHE = quotationsAll;
   const dikonversi = quotationsAll.filter(q=>q.Status==='Dikonversi').length;
   const belumLunas = invoicesAll.filter(i=>i.Status!=='Lunas').length;
   const lunas = invoicesAll.filter(i=>i.Status==='Lunas').length;
@@ -1923,8 +2121,47 @@ function openUserModal(data){
     ? 'Kosongkan jika tidak ingin mengganti kata sandi.'
     : 'Wajib diisi untuk pengguna baru.';
   form.Password.required = !data;
-  if(data){ Object.keys(data).forEach(k=>{ if(form[k]) form[k].value = data[k]; }); }
+  document.getElementById('prevFotoPengguna').style.display = 'none';
+  document.getElementById('txtFotoPengguna').style.display = 'block';
+  document.getElementById('inpFotoPenggunaHidden').value = '';
+  document.getElementById('prevTtdPengguna').style.display = 'none';
+  document.getElementById('txtTtdPengguna').style.display = 'flex';
+  document.getElementById('inpTtdPenggunaHidden').value = '';
+  if(data){
+    Object.keys(data).forEach(k=>{ if(form[k]) form[k].value = data[k]; });
+    if(data.Foto){
+      document.getElementById('prevFotoPengguna').src = data.Foto;
+      document.getElementById('prevFotoPengguna').style.display = 'block';
+      document.getElementById('txtFotoPengguna').style.display = 'none';
+    }
+    if(data.TandaTangan){
+      document.getElementById('prevTtdPengguna').src = data.TandaTangan;
+      document.getElementById('prevTtdPengguna').style.display = 'block';
+      document.getElementById('txtTtdPengguna').style.display = 'none';
+    }
+  }
   new bootstrap.Modal('#modalPengguna').show();
+}
+
+/* Konversi file foto/tanda tangan pengguna ke base64 dan simpan ke input hidden terkait,
+   agar tersimpan langsung sebagai bagian data pengguna (data.Foto / data.TandaTangan). */
+function handleUserAssetUpload(type, input, context){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const dataUrl = reader.result;
+    const suffix = context === 'profil' ? 'Profil' : 'Pengguna';
+    const prevId = type === 'foto' ? 'prevFoto'+suffix : 'prevTtd'+suffix;
+    const txtId = type === 'foto' ? 'txtFoto'+suffix : 'txtTtd'+suffix;
+    const hiddenId = type === 'foto' ? 'inpFoto'+suffix+'Hidden' : 'inpTtd'+suffix+'Hidden';
+    document.getElementById(prevId).src = dataUrl;
+    document.getElementById(prevId).style.display = 'block';
+    const txtEl = document.getElementById(txtId);
+    if(txtEl) txtEl.style.display = 'none';
+    document.getElementById(hiddenId).value = dataUrl;
+  };
+  reader.readAsDataURL(file);
 }
 
 document.getElementById('formPengguna').addEventListener('submit', async e=>{
@@ -1949,9 +2186,68 @@ function deleteUser(id, username){
   });
 }
 
+/* ================= PROFIL SAYA (khusus milik sendiri, semua role) ================= */
+function loadProfilSaya(){
+  const u = getCurrentUser();
+  if(!u) return;
+  document.getElementById('inpProfilNama').value = u.Nama || '';
+  document.getElementById('inpProfilJabatan').value = u.Jabatan || '';
+  document.getElementById('inpProfilEmail').value = u.Email || '';
+  document.getElementById('inpProfilNoHp').value = u.NoHp || '';
+  document.getElementById('inpProfilUsername').value = u.Username || '';
+  document.getElementById('inpProfilStatus').value = u.Status || '';
+  document.getElementById('inpProfilPassword').value = '';
+  document.getElementById('inpProfilPasswordConfirm').value = '';
+  document.getElementById('profilNamaPreview').textContent = u.Nama || '-';
+  document.getElementById('profilJabatanPreview').textContent = u.Jabatan || '-';
+  document.getElementById('profilRolePreview').textContent = u.Role || '-';
+
+  const prevFoto = document.getElementById('prevFotoProfil');
+  const txtFoto = document.getElementById('txtFotoProfil');
+  document.getElementById('inpProfilFotoHidden').value = u.Foto || '';
+  if(u.Foto){ prevFoto.src = u.Foto; prevFoto.style.display = 'block'; txtFoto.style.display = 'none'; }
+  else { prevFoto.style.display = 'none'; txtFoto.style.display = 'block'; }
+
+  const prevTtd = document.getElementById('prevTtdProfil');
+  const txtTtd = document.getElementById('txtTtdProfil');
+  document.getElementById('inpProfilTtdHidden').value = u.TandaTangan || '';
+  if(u.TandaTangan){ prevTtd.src = u.TandaTangan; prevTtd.style.display = 'block'; txtTtd.style.display = 'none'; }
+  else { prevTtd.style.display = 'none'; txtTtd.style.display = 'flex'; }
+}
+
+document.getElementById('formProfilSaya').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const me = getCurrentUser();
+  if(!me){ toast('error','Sesi tidak ditemukan, silakan masuk kembali.'); return; }
+  const password = document.getElementById('inpProfilPassword').value;
+  const passwordConfirm = document.getElementById('inpProfilPasswordConfirm').value;
+  if(password || passwordConfirm){
+    if(password.length < 6){ toast('error','Kata sandi baru minimal 6 karakter'); return; }
+    if(password !== passwordConfirm){ toast('error','Konfirmasi kata sandi tidak sama'); return; }
+  }
+  const fd = new FormData(e.target);
+  const data = Object.fromEntries(fd.entries());
+  if(!data.Password) delete data.Password;
+  try{
+    await api('auth','update',{id: me.ID, data});
+    // Perbarui data sesi lokal agar UI (sidebar, dsb.) langsung mencerminkan perubahan,
+    // tanpa menyimpan kata sandi di penyimpanan lokal.
+    const updatedUser = Object.assign({}, me, data);
+    delete updatedUser.Password;
+    const store = localStorage.getItem('auth_token') ? localStorage : sessionStorage;
+    store.setItem('auth_user', JSON.stringify(updatedUser));
+    toast('success','Profil berhasil disimpan');
+    document.getElementById('inpProfilPassword').value = '';
+    document.getElementById('inpProfilPasswordConfirm').value = '';
+    loadProfilSaya();
+    renderSidebarUserBox();
+  }catch(err){ /* pesan error sudah ditampilkan oleh fungsi api() */ }
+});
+
 /* ================= PENAWARAN ================= */
 async function loadQuotations(){
   let [quotations] = await Promise.all([api('quotations','list')]);
+  QUOTATIONS_CACHE = quotations;
   if(!SERVICES.length) SERVICES = await api('services','list');
   if(!CLIENTS.length) CLIENTS = await api('clients','list');
   if(DT.penawaran) DT.penawaran.destroy();
@@ -1974,6 +2270,7 @@ async function loadQuotations(){
         <div class="dropdown">
           <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false" title="Lainnya"><i class="bi bi-three-dots-vertical"></i></button>
           <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#" onclick="showOwnerHistory('quotation', findCacheById(QUOTATIONS_CACHE,'${q.ID}'));return false;"><i class="bi bi-clock-history me-2"></i>Riwayat Pengguna</a></li>
             <li><a class="dropdown-item" href="#" onclick="printQuotationA4('${q.ID}');return false;"><i class="bi bi-printer me-2"></i>Cetak</a></li>
             <li><a class="dropdown-item" href="#" onclick="downloadQuotationPdf('${q.ID}');return false;"><i class="bi bi-download me-2"></i>Download PDF</a></li>
             <li><a class="dropdown-item" href="#" onclick="sendQuotationEmail('${q.ID}');return false;"><i class="bi bi-envelope me-2"></i>Kirim Email</a></li>
@@ -2045,6 +2342,9 @@ document.getElementById('formPenawaran').addEventListener('submit', async e=>{
   data.PajakPersen = pajakPersen;
   data.Pajak = pajak;
   data.Total = total;
+  const stampQ = userStamp();
+  if(!id){ data.CreatedByID = stampQ.id; data.CreatedByNama = stampQ.nama; data.CreatedByJabatan = stampQ.jabatan; data.CreatedByTtd = stampQ.ttd; }
+  else { data.UpdatedByID = stampQ.id; data.UpdatedByNama = stampQ.nama; }
   await api('quotations', id ? 'update':'create', {id, data});
   if(!id) logActivity('Quotation dibuat', formatCurrency(total));
   toast('success','Penawaran tersimpan');
@@ -2060,7 +2360,11 @@ function deleteQuotation(id){
 
 function convertQuotation(id){
   Swal.fire({title:'Jadikan Invoice?',text:'Penawaran ini akan dikonversi menjadi Invoice baru.',icon:'question',showCancelButton:true,confirmButtonText:'Ya, Konversi',cancelButtonText:'Batal'}).then(async r=>{
-    if(r.isConfirmed){ await api('quotations','convert',{id}); toast('success','Invoice berhasil dibuat dari penawaran'); loadQuotations(); }
+    if(r.isConfirmed){
+      const stamp = userStamp();
+      await api('quotations','convert',{id, data:{ConvertedByID: stamp.id, ConvertedByNama: stamp.nama}});
+      toast('success','Invoice berhasil dibuat dari penawaran'); loadQuotations();
+    }
   });
 }
 
@@ -2109,9 +2413,7 @@ async function buildQuotationHtml(id){
     <div class="row">
       <div class="col-6"></div>
       <div class="col-6 text-end">
-        ${a.stempel_file_id ? `<img src="${a.stempel_file_id}" style="height:65px;max-width:130px;object-fit:contain;position:relative;z-index:2;">` : ''}
-        ${a.ttd_file_id ? `<img src="${a.ttd_file_id}" style="height:100px;max-width:200px;object-fit:contain;margin-left:-18px;position:relative;z-index:1;">` : ''}
-        <div class="mt-1">Hormat kami,<br>${s.nama_perusahaan}</div>
+        ${renderSignatureBlock(q, s, a)}
       </div>
     </div>
     ${q.Catatan ? `<div class="mt-3 small text-muted">Catatan: ${q.Catatan}</div>` : ''}
@@ -2162,21 +2464,26 @@ function downloadQuotationPdf(id){
   id = id || CURRENT_PDF_QUOTATION_ID;
   buildQuotationHtml(id).then(built=>{
     const container = document.createElement('div');
-    container.style.cssText = INVOICE_A4_WRAPPER_STYLE + 'position:fixed;left:-9999px;top:0;width:210mm;';
+    container.style.cssText = INVOICE_A4_WRAPPER_STYLE + 'position:absolute;left:0;top:0;width:210mm;z-index:-9999;background:#fff;';
     container.innerHTML = built.html;
     document.body.appendChild(container);
     renderQr('qr-quotation-'+built.q.ID, built.link);
-    setTimeout(()=>{
+    waitForImagesToLoad(container).then(()=>{
+      const w = Math.max(Math.ceil(container.scrollWidth), 794);
+      const h = Math.max(Math.ceil(container.scrollHeight), 1123);
       html2pdf().set({
         filename:(built.q.Nomor||'penawaran')+'.pdf',
         jsPDF:{unit:'mm', format:'a4', orientation:'portrait'},
-        html2canvas:{scale:2, useCORS:true},
+        html2canvas:{scale:2, useCORS:true, allowTaint:true, scrollX:0, scrollY:0, windowWidth:w, windowHeight:h},
         pagebreak:{mode:['css','legacy']}
       }).from(container).save().then(()=>{
         document.body.removeChild(container);
         toast('success','PDF penawaran berhasil diunduh');
+      }).catch(err=>{
+        document.body.removeChild(container);
+        toast('error','Gagal membuat PDF: '+(err&&err.message?err.message:err));
       });
-    }, 350);
+    });
   });
 }
 
@@ -2186,10 +2493,14 @@ function sendQuotationEmail(id){
     const q = built.q;
     const emailTujuan = q.client ? q.client.Email : '';
     if(!emailTujuan){ toast('error','Klien belum memiliki alamat email'); return; }
+    const signer = getDocumentSignerInfo(q, SETTINGS, built.assets);
+    const tplRaw = SETTINGS.template_email_isi_quotation || SETTINGS.template_email_isi || 'Halo {klien}, berikut penawaran {nomor} sebesar {total}. Silakan cek pada tautan: {link}';
     const subjek = fillTemplate(SETTINGS.template_email_subjek_quotation || SETTINGS.template_email_subjek || 'Penawaran {nomor} dari {perusahaan}', {nomor:q.Nomor, perusahaan:SETTINGS.nama_perusahaan});
-    const isi = fillTemplate(SETTINGS.template_email_isi_quotation || SETTINGS.template_email_isi || 'Halo {klien}, berikut penawaran {nomor} sebesar {total}. Silakan cek pada tautan: {link}', {
-      klien: q.client?q.client.Nama:'', nomor:q.Nomor, total:formatCurrency(q.Total), link:built.link, perusahaan:SETTINGS.nama_perusahaan, tanggal:formatDate(q.Tanggal)
-    });
+    const isiVars = {
+      klien: q.client?q.client.Nama:'', nomor:q.Nomor, total:formatCurrency(q.Total), link:built.link, perusahaan:SETTINGS.nama_perusahaan, tanggal:formatDate(q.Tanggal),
+      pembuat: signer.nama, jabatan: signer.jabatan
+    };
+    const isi = appendSignerFooter(fillTemplate(tplRaw, isiVars), signer, tplRaw);
     try{
       await api('quotations','sendemail',{id, data:{subjek, isi, to: emailTujuan}});
       logActivity('Email dikirim', 'Penawaran '+q.Nomor+' ke '+emailTujuan);
@@ -2204,9 +2515,13 @@ function sendQuotationWhatsapp(id){
     const q = built.q;
     let phone = (q.client && q.client.Telepon || '').replace(/[^0-9]/g,'');
     if(phone.startsWith('0')) phone = '62' + phone.substring(1);
-    const pesan = fillTemplate(SETTINGS.template_whatsapp_quotation || SETTINGS.template_whatsapp || 'Halo {klien}, penawaran {nomor} sebesar {total} sudah kami terbitkan. Detail: {link}', {
-      klien: q.client?q.client.Nama:'', nomor:q.Nomor, total:formatCurrency(q.Total), link:built.link, perusahaan:SETTINGS.nama_perusahaan, tanggal:formatDate(q.Tanggal)
-    });
+    const signer = getDocumentSignerInfo(q, SETTINGS, built.assets);
+    const tplRawWa = SETTINGS.template_whatsapp_quotation || SETTINGS.template_whatsapp || 'Halo {klien}, penawaran {nomor} sebesar {total} sudah kami terbitkan. Detail: {link}';
+    const pesanVars = {
+      klien: q.client?q.client.Nama:'', nomor:q.Nomor, total:formatCurrency(q.Total), link:built.link, perusahaan:SETTINGS.nama_perusahaan, tanggal:formatDate(q.Tanggal),
+      pembuat: signer.nama, jabatan: signer.jabatan
+    };
+    const pesan = appendSignerFooter(fillTemplate(tplRawWa, pesanVars), signer, tplRawWa);
     if(phone){
       window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(pesan), '_blank');
     }else{
@@ -2295,9 +2610,7 @@ function buildPublicQuotationHtml(data){
     <div class="row">
       <div class="col-6"></div>
       <div class="col-6 text-end">
-        ${a.stempel_file_id ? `<img src="${a.stempel_file_id}" style="height:65px;max-width:130px;object-fit:contain;position:relative;z-index:2;">` : ''}
-        ${a.ttd_file_id ? `<img src="${a.ttd_file_id}" style="height:100px;max-width:200px;object-fit:contain;margin-left:-18px;position:relative;z-index:1;">` : ''}
-        <div class="mt-1">Hormat kami,<br>${s.nama_perusahaan||''}</div>
+        ${renderSignatureBlock(q, s, a)}
       </div>
     </div>
     ${q.Catatan ? `<div class="mt-3 small text-muted">Catatan: ${q.Catatan}</div>` : ''}
@@ -2351,6 +2664,7 @@ async function loadInvoices(){
         <div class="dropdown">
           <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false" title="Lainnya"><i class="bi bi-three-dots-vertical"></i></button>
           <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#" onclick="showOwnerHistory('invoice', findCacheById(INVOICES_CACHE,'${i.ID}'));return false;"><i class="bi bi-clock-history me-2"></i>Riwayat Pengguna</a></li>
             <li><a class="dropdown-item" href="#" onclick="printInvoiceA4('${i.ID}');return false;"><i class="bi bi-printer me-2"></i>Cetak</a></li>
             <li><a class="dropdown-item" href="#" onclick="downloadInvoicePdf('${i.ID}');return false;"><i class="bi bi-download me-2"></i>Download PDF</a></li>
             <li><a class="dropdown-item" href="#" onclick="sendInvoiceEmail('${i.ID}');return false;"><i class="bi bi-envelope me-2"></i>Kirim Email</a></li>
@@ -2436,6 +2750,9 @@ document.getElementById('formInvoice').addEventListener('submit', async e=>{
   data.Total = total;
   data.DP = dpVal;
   data.Sisa = Math.max(total - dpVal, 0);
+  const stampI = userStamp();
+  if(!id){ data.CreatedByID = stampI.id; data.CreatedByNama = stampI.nama; data.CreatedByJabatan = stampI.jabatan; data.CreatedByTtd = stampI.ttd; }
+  else { data.UpdatedByID = stampI.id; data.UpdatedByNama = stampI.nama; }
   await api('invoices', id ? 'update':'create', {id, data});
   logActivity(id ? 'Invoice diedit' : 'Invoice dibuat', 'Total '+formatCurrency(total));
   toast('success','Invoice tersimpan');
@@ -2519,9 +2836,7 @@ async function buildInvoiceHtml(id){
         ${a.qris_file_id ? `<div class="mt-2"><b>QRIS:</b><br><img src="${a.qris_file_id}" style="height:120px;"></div>` : ''}
       </div>
       <div class="col-6 text-end">
-        ${a.stempel_file_id ? `<img src="${a.stempel_file_id}" style="height:65px;max-width:130px;object-fit:contain;position:relative;z-index:2;">` : ''}
-        ${a.ttd_file_id ? `<img src="${a.ttd_file_id}" style="height:100px;max-width:200px;object-fit:contain;margin-left:-18px;position:relative;z-index:1;">` : ''}
-        <div class="mt-1">Hormat kami,<br>${s.nama_perusahaan}</div>
+        ${renderSignatureBlock(inv, s, a)}
       </div>
     </div>
     ${inv.Catatan ? `<div class="mt-3 small text-muted">Catatan: ${inv.Catatan}</div>` : ''}
@@ -2550,6 +2865,20 @@ async function viewInvoicePdf(id){
   document.getElementById('invoicePrintArea').innerHTML = built.html;
   renderQr('qr-'+built.inv.ID, built.link);
   new bootstrap.Modal('#modalPdf').show();
+}
+
+function waitForImagesToLoad(container){
+  const imgs = Array.from(container.querySelectorAll('img'));
+  if(!imgs.length) return new Promise(resolve=>setTimeout(resolve, 120));
+  const promises = imgs.map(img=>{
+    if(img.complete && img.naturalWidth > 0) return Promise.resolve();
+    return new Promise(resolve=>{
+      img.addEventListener('load', resolve, {once:true});
+      img.addEventListener('error', resolve, {once:true});
+      setTimeout(resolve, 2000);
+    });
+  });
+  return Promise.all(promises).then(()=>new Promise(resolve=>setTimeout(resolve, 120)));
 }
 
 function renderQr(containerId, link){
@@ -2590,21 +2919,26 @@ function downloadInvoicePdf(id){
   id = id || CURRENT_PDF_INVOICE_ID;
   buildInvoiceHtml(id).then(built=>{
     const container = document.createElement('div');
-    container.style.cssText = INVOICE_A4_WRAPPER_STYLE + 'position:fixed;left:-9999px;top:0;width:210mm;';
+    container.style.cssText = INVOICE_A4_WRAPPER_STYLE + 'position:absolute;left:0;top:0;width:210mm;z-index:-9999;background:#fff;';
     container.innerHTML = built.html;
     document.body.appendChild(container);
     renderQr('qr-'+built.inv.ID, built.link);
-    setTimeout(()=>{
+    waitForImagesToLoad(container).then(()=>{
+      const w = Math.max(Math.ceil(container.scrollWidth), 794);
+      const h = Math.max(Math.ceil(container.scrollHeight), 1123);
       html2pdf().set({
         filename:(built.inv.Nomor||'invoice')+'.pdf',
         jsPDF:{unit:'mm', format:'a4', orientation:'portrait'},
-        html2canvas:{scale:2, useCORS:true},
+        html2canvas:{scale:2, useCORS:true, allowTaint:true, scrollX:0, scrollY:0, windowWidth:w, windowHeight:h},
         pagebreak:{mode:['css','legacy']}
       }).from(container).save().then(()=>{
         document.body.removeChild(container);
         toast('success','PDF invoice berhasil diunduh');
+      }).catch(err=>{
+        document.body.removeChild(container);
+        toast('error','Gagal membuat PDF: '+(err&&err.message?err.message:err));
       });
-    }, 350);
+    });
   });
 }
 
@@ -2614,10 +2948,14 @@ function sendInvoiceEmail(id){
     const inv = built.inv;
     const emailTujuan = inv.client ? inv.client.Email : '';
     if(!emailTujuan){ toast('error','Klien belum memiliki alamat email'); return; }
+    const signer = getDocumentSignerInfo(inv, SETTINGS, built.assets);
+    const tplRaw = SETTINGS.template_email_isi_invoice || SETTINGS.template_email_isi || 'Halo {klien}, berikut invoice {nomor} sebesar {total}. Silakan cek pada tautan: {link}';
     const subjek = fillTemplate(SETTINGS.template_email_subjek_invoice || SETTINGS.template_email_subjek || 'Invoice {nomor} dari {perusahaan}', {nomor:inv.Nomor, perusahaan:SETTINGS.nama_perusahaan});
-    const isi = fillTemplate(SETTINGS.template_email_isi_invoice || SETTINGS.template_email_isi || 'Halo {klien}, berikut invoice {nomor} sebesar {total}. Silakan cek pada tautan: {link}', {
-      klien: inv.client?inv.client.Nama:'', nomor:inv.Nomor, total:formatCurrency(inv.Total), link:built.link, perusahaan:SETTINGS.nama_perusahaan, tanggal:formatDate(inv.Tanggal)
-    });
+    const isiVars = {
+      klien: inv.client?inv.client.Nama:'', nomor:inv.Nomor, total:formatCurrency(inv.Total), link:built.link, perusahaan:SETTINGS.nama_perusahaan, tanggal:formatDate(inv.Tanggal),
+      pembuat: signer.nama, jabatan: signer.jabatan
+    };
+    const isi = appendSignerFooter(fillTemplate(tplRaw, isiVars), signer, tplRaw);
     try{
       await api('invoices','sendemail',{id, data:{subjek, isi, to: emailTujuan}});
       logActivity('Email dikirim', 'Invoice '+inv.Nomor+' ke '+emailTujuan);
@@ -2632,9 +2970,13 @@ function sendInvoiceWhatsapp(id){
     const inv = built.inv;
     let phone = (inv.client && inv.client.Telepon || '').replace(/[^0-9]/g,'');
     if(phone.startsWith('0')) phone = '62' + phone.substring(1);
-    const pesan = fillTemplate(SETTINGS.template_whatsapp_invoice || SETTINGS.template_whatsapp || 'Halo {klien}, invoice {nomor} sebesar {total} sudah kami terbitkan. Detail: {link}', {
-      klien: inv.client?inv.client.Nama:'', nomor:inv.Nomor, total:formatCurrency(inv.Total), link:built.link, perusahaan:SETTINGS.nama_perusahaan, tanggal:formatDate(inv.Tanggal)
-    });
+    const signer = getDocumentSignerInfo(inv, SETTINGS, built.assets);
+    const tplRawWa = SETTINGS.template_whatsapp_invoice || SETTINGS.template_whatsapp || 'Halo {klien}, invoice {nomor} sebesar {total} sudah kami terbitkan. Detail: {link}';
+    const pesanVars = {
+      klien: inv.client?inv.client.Nama:'', nomor:inv.Nomor, total:formatCurrency(inv.Total), link:built.link, perusahaan:SETTINGS.nama_perusahaan, tanggal:formatDate(inv.Tanggal),
+      pembuat: signer.nama, jabatan: signer.jabatan
+    };
+    const pesan = appendSignerFooter(fillTemplate(tplRawWa, pesanVars), signer, tplRawWa);
     if(phone){
       window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(pesan), '_blank');
     }else{
@@ -2694,6 +3036,7 @@ async function duplicateInvoice(id){
 /* ================= PEMBAYARAN ================= */
 async function loadPayments(){
   let payments = await api('payments','list');
+  PAYMENTS_CACHE = payments;
   if(!INVOICES_CACHE.length) INVOICES_CACHE = await api('invoices','list');
   if(DT.pembayaran) DT.pembayaran.destroy();
   const banner = document.getElementById('filterBannerPembayaran');
@@ -2712,7 +3055,10 @@ async function loadPayments(){
   tbody.innerHTML = payments.map(p=>`
     <tr>
       <td>${p.NomorInvoice}</td><td>${formatDate(p.Tanggal)}</td><td>${formatCurrency(p.Jumlah)}</td><td>${p.Metode}</td><td>${p.Referensi||'-'}</td>
-      <td><button class="btn btn-sm btn-outline-danger" onclick="deletePayment('${p.ID}')"><i class="bi bi-trash"></i></button></td>
+      <td>
+        <button class="btn btn-sm btn-outline-secondary" onclick="showOwnerHistory('payment', findCacheById(PAYMENTS_CACHE,'${p.ID}'))" title="Riwayat Pengguna"><i class="bi bi-clock-history"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deletePayment('${p.ID}')"><i class="bi bi-trash"></i></button>
+      </td>
     </tr>`).join('');
   DT.pembayaran = $('#tblPembayaran').DataTable({language:{url:'https://cdn.datatables.net/plug-ins/1.13.8/i18n/id.json'}});
 }
@@ -2730,6 +3076,9 @@ document.getElementById('formPembayaran').addEventListener('submit', async e=>{
   const fd = new FormData(e.target);
   const data = Object.fromEntries(fd.entries());
   const id = data.ID; delete data.ID;
+  const stampP = userStamp();
+  if(!id){ data.PaymentByID = stampP.id; data.PaymentByNama = stampP.nama; }
+  else { data.UpdatedByID = stampP.id; data.UpdatedByNama = stampP.nama; }
   await api('payments', id ? 'update':'create', {id, data});
   if(!id) logActivity('Pembayaran dicatat', 'Sebesar '+formatCurrency(data.Jumlah));
   toast('success','Pembayaran tersimpan');
@@ -2791,7 +3140,9 @@ const TPL_PLACEHOLDERS = [
   {token:'{tanggal}',    label:'Tanggal'},
   {token:'{total}',      label:'Total'},
   {token:'{link}',       label:'Tautan Publik'},
-  {token:'{perusahaan}', label:'Nama Perusahaan'}
+  {token:'{perusahaan}', label:'Nama Perusahaan'},
+  {token:'{pembuat}',    label:'Nama Pembuat'},
+  {token:'{jabatan}',    label:'Jabatan Pembuat'}
 ];
 const TPL_DUMMY = {
   invoice: {
@@ -2803,7 +3154,8 @@ const TPL_DUMMY = {
       {Deskripsi:'Maintenance Bulanan', Qty:3, Satuan:'Bulan', Harga:500000, Subtotal:1500000}
     ],
     Subtotal:10700000, Diskon:200000, PajakPersen:11, Pajak:1155000,
-    Total:11655000, Terbayar:5000000, Sisa:6655000, Catatan:'Pembayaran dapat dilakukan melalui transfer bank atau QRIS.'
+    Total:11655000, Terbayar:5000000, Sisa:6655000, Catatan:'Pembayaran dapat dilakukan melalui transfer bank atau QRIS.',
+    CreatedByNama:'Budi Hartono', CreatedByJabatan:'Finance Manager'
   },
   quotation: {
     Nomor:'PEN-2026-0088', Tanggal:'2026-07-18', TanggalBerlaku:'2026-08-18', Status:'Terkirim',
@@ -2813,7 +3165,8 @@ const TPL_DUMMY = {
       {Deskripsi:'Pengembangan Backend API', Qty:1, Satuan:'Paket', Harga:9500000, Subtotal:9500000}
     ],
     Subtotal:21500000, Diskon:0, PajakPersen:11, Pajak:2365000, Total:23865000,
-    Catatan:'Penawaran berlaku selama 30 hari sejak tanggal diterbitkan.'
+    Catatan:'Penawaran berlaku selama 30 hari sejak tanggal diterbitkan.',
+    CreatedByNama:'Sarah Amelia', CreatedByJabatan:'Business Development'
   },
   paymentsInvoice: [
     {Tanggal:'2026-07-22', Jumlah:5000000, Metode:'Transfer Bank', Referensi:'TRX-88231'}
@@ -3161,7 +3514,9 @@ function renderTplMessagePreview(scope){
   const vars = {
     klien: d.client.Nama, nomor: d.Nomor, tanggal: formatDate(d.Tanggal), total: formatCurrency(d.Total),
     link: base+'/?'+(isQuotationSub?'quotation=':'invoice=')+d.Nomor,
-    perusahaan: SETTINGS.nama_perusahaan || 'Nama Perusahaan'
+    perusahaan: SETTINGS.nama_perusahaan || 'Nama Perusahaan',
+    pembuat: d.CreatedByNama || SETTINGS.nama_perusahaan || 'Nama Pembuat',
+    jabatan: d.CreatedByJabatan || ''
   };
   const box = document.getElementById('tplPreview-'+scope);
   if(!box) return;
